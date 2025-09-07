@@ -16,7 +16,8 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Missing required fields: prompt and imageParts' });
   }
 
-  const apiKey = process.env.GOOGLE_API_KEY;
+  // FIX: API key must be read from process.env.API_KEY
+  const apiKey = process.env.API_KEY;
   if (!apiKey) {
     return res.status(500).json({ error: 'API key not configured on the server' });
   }

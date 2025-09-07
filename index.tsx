@@ -81,743 +81,400 @@ const CopyIcon = () => (
         <path d="M14.5 7.5H6.5C5.39543 7.5 4.5 8.39543 4.5 9.5V19.5C4.5 20.6046 5.39543 21.5 6.5 21.5H14.5C15.6046 21.5 16.5 20.6046 16.5 19.5V9.5C16.5 8.39543 15.6046 7.5 14.5 7.5ZM14.5 19.5H6.5V9.5H14.5V19.5Z" fill="currentColor"/>
     </svg>
 );
-const UpscaleIcon = () => (
+const DescribeIcon = () => (
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M4 20L10 14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        <path d="M13 5H19V11" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        <path d="M5 11V5H11" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        <path d="M19 13V19H13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        <path d="M19 5L14 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-    </svg>
-);
-const EnhanceIcon = () => (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M12 2.5L14.3267 9.67333L21.5 12L14.3267 14.3267L12 21.5L9.67333 14.3267L2.5 12L9.67333 9.67333L12 2.5Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-    </svg>
-);
-const RemoveBgIcon = () => (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M12 2.5C16.9706 2.5 21 6.52944 21 11.5C21 16.4706 16.9706 20.5 12 20.5C7.02944 20.5 3 16.4706 3 11.5C3 6.52944 7.02944 2.5 12 2.5Z" stroke="currentColor" strokeWidth="2"/>
-        <path d="M21 3L3 21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-    </svg>
-);
-const ChangeBgIcon = () => (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M3 18.5L8.5 13L12.5 17L21 8.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        <path d="M16 3.5H20C20.8284 3.5 21.5 4.17157 21.5 5V19C21.5 19.8284 20.8284 20.5 20 20.5H4C3.17157 20.5 2.5 19.8284 2.5 19V5C2.5 4.17157 3.17157 3.5 4 3.5H8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        <circle cx="12" cy="8.5" r="2" stroke="currentColor" strokeWidth="2"/>
-    </svg>
-);
-const ColorBalanceIcon = () => (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        <path d="M12 12L18.36 6.36" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        <path d="M12 12L6.36 18.36" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        <path d="M12 12L6.36 6.36" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        <path d="M12 12L18.36 18.36" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-    </svg>
-);
-const AIDescribeIcon = () => (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M12 2.5L14.3267 9.67333L21.5 12L14.3267 14.3267L12 21.5L9.67333 14.3267L2.5 12L9.67333 9.67333L12 2.5Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-        <path d="M5 5L7 7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-        <path d="M17 17L19 19" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M12.5 2.5L14.0625 5.625L17.5 6.25L15 8.75L15.625 12.5L12.5 10.8125L9.375 12.5L10 8.75L7.5 6.25L11.0625 5.625L12.5 2.5ZM12.5 8.1875L13.75 10.8125L11.25 10.8125L12.5 8.1875ZM7.5 13.75L9.375 15L7.5 16.25V13.75ZM17.5 13.75V16.25L15.625 15L17.5 13.75ZM12.5 13.1875L13.75 15.8125L11.25 15.8125L12.5 13.1875ZM2.5 17.5L5.625 15.9375L6.25 19.375L8.75 16.875L12.5 17.5L16.25 16.875L18.75 19.375L19.375 15.9375L22.5 17.5L19.375 19.0625L18.75 22.5L16.25 20L12.5 20.625L8.75 20L6.25 22.5L5.625 19.0625L2.5 17.5Z" fill="currentColor" />
     </svg>
 );
 
+// --- Style Definitions ---
+const styles = [
+    { name: 'Default', prompt: '{prompt}', singleUploader: true },
+    { name: 'Kartun', prompt: 'Ubah gambar menjadi ilustrasi kartun yang ceria dengan garis-garis tebal dan warna-warna cerah. {prompt}', singleUploader: true },
+    { name: 'Fantasi', prompt: 'Ubah gambar menjadi pemandangan fantasi epik, dengan elemen magis dan atmosfer seperti mimpi. {prompt}', singleUploader: true },
+    { name: 'Fotorealistik', prompt: 'Tingkatkan gambar menjadi fotorealistik, pertajam detail, pencahayaan, dan tekstur. {prompt}', singleUploader: true },
+    { name: 'Ganti Latar', prompt: 'Ganti latar belakang gambar dengan {prompt}, jaga agar subjek utama tetap utuh.', singleUploader: true },
+    { name: 'Ganti Pakaian', prompt: 'Ganti seluruh pakaian subjek dengan {prompt}, pertahankan wajah dan latar belakangnya.', singleUploader: true, requiresPrompt: true },
+    { name: 'Ganti Rambut', prompt: 'Ganti gaya rambut subjek menjadi {prompt}, pertahankan fitur wajah dan pakaian lainnya.', singleUploader: true, requiresPrompt: true },
+    { name: 'Campuran Gambar', prompt: 'Campurkan gambar utama dengan gambar gaya. {prompt}', singleUploader: false },
+];
 
-// --- React Components ---
+// --- API Abstraction ---
+const callApi = async (endpoint: string, body: object) => {
+    const response = await fetch(`/api/${endpoint}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+    });
 
-const Navbar = () => (
-    <nav className="navbar">
-        <div className="navbar-container">
-            <h1>ImageAI IT PALUGADA</h1>
-        </div>
-    </nav>
-);
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: 'Failed to parse error response' }));
+        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+    }
 
-const Hero = () => (
-    <header className="hero">
-        <div className="hero-container">
-            <h2>Create Powerful Ai Art or Image in seconds.</h2>
-        </div>
-    </header>
-);
-
-const Footer = () => (
-    <footer className="footer">
-        <p>Copyright 2025 - Powered by IT PALUGADA</p>
-    </footer>
-);
-
-interface ImageToolbarProps {
-    onDownload: () => void;
-    onUseAsInput: () => void;
-    onCopy: () => void;
-    onUpscale: () => void;
-    onEnhance: () => void;
-    onRemoveBg: () => void;
-    onChangeBg: () => void;
-    onColorBalance: () => void;
-}
-
-const ImageToolbar: React.FC<ImageToolbarProps> = ({ onDownload, onUseAsInput, onCopy, onUpscale, onEnhance, onRemoveBg, onChangeBg, onColorBalance }) => {
-    const [copyFeedback, setCopyFeedback] = useState(false);
-
-    const handleCopy = () => {
-        onCopy();
-        setCopyFeedback(true);
-        setTimeout(() => setCopyFeedback(false), 2000);
-    };
-
-    return (
-        <div className="image-toolbar">
-            <button className="toolbar-button" onClick={onDownload} title="Download Image"><DownloadIcon /></button>
-            <button className="toolbar-button" onClick={onUseAsInput} title="Use as Input"><UseAsInputIcon /></button>
-            <button className="toolbar-button" onClick={handleCopy} title="Copy Image">
-                {copyFeedback ? 'Copied!' : <CopyIcon />}
-            </button>
-            <div className="toolbar-divider"></div>
-            <button className="toolbar-button" onClick={onUpscale} title="Upscale 2x"><UpscaleIcon /></button>
-            <button className="toolbar-button" onClick={onEnhance} title="Enhance Quality"><EnhanceIcon /></button>
-            <button className="toolbar-button" onClick={onRemoveBg} title="Remove Background"><RemoveBgIcon /></button>
-            <button className="toolbar-button" onClick={onChangeBg} title="Change Background"><ChangeBgIcon /></button>
-            <button className="toolbar-button" onClick={onColorBalance} title="Color Balance"><ColorBalanceIcon /></button>
-        </div>
-    );
+    return response.json();
 };
 
-
-interface ImagePlaceholderProps {
-    image: { url: string; file: File | null } | null;
-    isLoading: boolean;
-    onImageUpload: (event: React.ChangeEvent<HTMLInputElement>) => void;
-    isOriginal?: boolean;
-    toolbarActions?: ImageToolbarProps;
-    onDownload?: () => void;
-}
-
-const ImagePlaceholder: React.FC<ImagePlaceholderProps> = ({ image, isLoading, onImageUpload, isOriginal = false, toolbarActions, onDownload }) => {
-    return (
-        <div className="image-placeholder">
-            {image?.url ? (
-                <img src={image.url} alt={isOriginal ? 'Original' : 'Generated'} />
-            ) : (
-                <div className="upload-prompt">
-                    {isOriginal && (
-                        <>
-                            <p>Upload an image to start</p>
-                            <label className="upload-btn">
-                                + Select Image
-                                <input type="file" accept="image/*" onChange={onImageUpload} style={{ display: 'none' }} />
-                            </label>
-                        </>
-                    )}
-                </div>
-            )}
-            {isLoading && (
-                <div className="loading-overlay">
-                    <div className="spinner"></div>
-                    <p>Generating...</p>
-                </div>
-            )}
-            {!isOriginal && image?.url && toolbarActions && <ImageToolbar {...toolbarActions} />}
-            {isOriginal && image?.url && onDownload && (
-                <div className="image-toolbar-single">
-                    <button className="toolbar-button" onClick={onDownload} title="Download Original Image">
-                        <DownloadIcon />
-                    </button>
-                </div>
-            )}
-        </div>
-    );
-};
+// --- Main App Component ---
 
 const App = () => {
-    const [uploadedImage, setUploadedImage] = useState<{ url: string; file: File | null; aspectRatio: string }>({ url: '', file: null, aspectRatio: 'Original' });
-    const [uploadedBgImage, setUploadedBgImage] = useState<{ url: string; file: File | null }>({ url: '', file: null });
-    const [clothingImage, setClothingImage] = useState<{ url: string; file: File | null }>({ url: '', file: null });
-    const [poseImage, setPoseImage] = useState<{ url: string; file: File | null }>({ url: '', file: null });
-    const [generatedImage, setGeneratedImage] = useState<{ url: string; file: File | null }>({ url: '', file: null });
-    const [prompt, setPrompt] = useState('');
-    const [isLoading, setIsLoading] = useState(false);
-    const [isDescribing, setIsDescribing] = useState(false);
-    const [error, setError] = useState('');
+  // State variables
+  const [prompt, setPrompt] = useState<string>('');
+  const [mainImage, setMainImage] = useState<File | null>(null);
+  const [styleImage, setStyleImage] = useState<File | null>(null);
+  const [generatedImage, setGeneratedImage] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string>('');
+  const [activeStyle, setActiveStyle] = useState<string>('Default');
+  const [aspectRatio, setAspectRatio] = useState<string>('1:1');
+  const [isAspectRatioLocked, setIsAspectRatioLocked] = useState<boolean>(false);
+  const [mainImagePreview, setMainImagePreview] = useState<string | null>(null);
+  const [styleImagePreview, setStyleImagePreview] = useState<string | null>(null);
+  const [isDescribeLoading, setIsDescribeLoading] = useState<boolean>(false);
+  
+  // Refs for file inputs
+  const mainImageInputRef = useRef<HTMLInputElement>(null);
+  const styleImageInputRef = useRef<HTMLInputElement>(null);
+  const downloadCounter = useRef(1);
 
-    // Options state
-    const [style, setStyle] = useState('Default');
-    const [aspectRatio, setAspectRatio] = useState('Original');
-    const [lockFace, setLockFace] = useState(true);
-    const [preserveSubject, setPreserveSubject] = useState(false);
-    const [preserveScene, setPreserveScene] = useState(false);
+  // --- Handlers ---
 
-    const downloadCounter = useRef({ original: 1, generated: 1 });
-
-    const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-        if (event.target.files && event.target.files[0]) {
-            const file = event.target.files[0];
-            const url = URL.createObjectURL(file);
-            const img = new Image();
-            img.onload = () => {
-                const ratio = getAspectRatio(img.width, img.height);
-                setUploadedImage({ url, file, aspectRatio: ratio });
-                setAspectRatio(`Original (${ratio})`);
-                if (!['Blend Photos', 'Foto Bersama', 'Ganti Baju', 'Pose'].includes(style)) {
-                    setUploadedBgImage({ url: '', file: null });
-                    setClothingImage({ url: '', file: null });
-                    setPoseImage({ url: '', file: null });
-                }
-            };
-            img.src = url;
+  const handleFileChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    setImage: React.Dispatch<React.SetStateAction<File | null>>,
+    setPreview: React.Dispatch<React.SetStateAction<string | null>>
+  ) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImage(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreview(reader.result as string);
+        if (setImage === setMainImage && !isAspectRatioLocked) {
+          const img = new Image();
+          img.onload = () => setAspectRatio(getAspectRatio(img.width, img.height));
+          img.src = reader.result as string;
         }
-    };
+      };
+      reader.readAsDataURL(file);
+    }
+    // Clear the input value to allow re-uploading the same file
+    e.target.value = ''; 
+  };
+  
+  // FIX: Added 'requiresPrompt' to the style object type to fix the TypeScript error.
+  const handleStyleClick = (style: { name: string, prompt: string, singleUploader: boolean, requiresPrompt?: boolean }) => {
+    setActiveStyle(style.name);
+    // Only update prompt if the style doesn't require a custom user prompt
+    if (!style.requiresPrompt) {
+        const newPrompt = style.prompt.includes('{prompt}') ? '' : style.prompt;
+        setPrompt(newPrompt);
+    } else {
+        // If it requires a prompt, clear the text box for the user to type
+        setPrompt('');
+    }
+  };
 
-    const handleBgImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-        if (event.target.files && event.target.files[0]) {
-            const file = event.target.files[0];
-            const url = URL.createObjectURL(file);
-            setUploadedBgImage({ url, file });
-        }
-    };
-    
-    const handleClothingImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-        if (event.target.files && event.target.files[0]) {
-            const file = event.target.files[0];
-            const url = URL.createObjectURL(file);
-            setClothingImage({ url, file });
-        }
-    };
+  const handleDescribe = async () => {
+    if (!mainImage) {
+        setError("Please upload an image first to describe.");
+        return;
+    }
+    setIsDescribeLoading(true);
+    setError('');
+    try {
+        const imagePart = await fileToGenerativePart(mainImage);
+        const result = await callApi('describe', { imagePart });
+        setPrompt(result.description);
+    } catch (e: any) {
+        setError(`Description failed: ${e.message}`);
+    } finally {
+        setIsDescribeLoading(false);
+    }
+  };
+  
+  const generateImage = async () => {
+    const currentStyle = styles.find(s => s.name === activeStyle) || styles[0];
+    const isSingleUploader = currentStyle.singleUploader;
+  
+    // Validation
+    if (!prompt && currentStyle.prompt.includes("{prompt}")) {
+      setError('Please enter a prompt.');
+      return;
+    }
+    if (isSingleUploader && !mainImage) {
+      setError('Please upload a main image.');
+      return;
+    }
+    if (!isSingleUploader && (!mainImage || !styleImage)) {
+      setError('Please upload both a main image and a style image for this mode.');
+      return;
+    }
+  
+    setIsLoading(true);
+    setGeneratedImage(null);
+    setError('');
+  
+    try {
+      // Construct the final prompt
+      const finalPrompt = currentStyle.prompt.replace('{prompt}', prompt);
+  
+      // Prepare image parts
+      const imageParts: Part[] = [];
+      if (mainImage) imageParts.push(await fileToGenerativePart(mainImage));
+      if (!isSingleUploader && styleImage) imageParts.push(await fileToGenerativePart(styleImage));
+  
+      const result = await callApi('generate', { prompt: finalPrompt, imageParts });
 
-    const handlePoseImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-        if (event.target.files && event.target.files[0]) {
-            const file = event.target.files[0];
-            const url = URL.createObjectURL(file);
-            setPoseImage({ url, file });
-        }
-    };
+      if (result.base64) {
+        setGeneratedImage(`data:${result.mimeType};base64,${result.base64}`);
+      } else {
+        throw new Error('API did not return image data.');
+      }
+    } catch (e: any) {
+      setError(`Generation failed: ${e.message}`);
+      setGeneratedImage(null);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-    const selectStyle = (selectedStyle: string) => {
-        if (selectedStyle === '+ Super Realistis') {
-            const realisticPhrase = 'super realistic, indistinguishable from a photograph, lifelike textures, natural lighting';
-            setPrompt(prevPrompt => {
-                if (prevPrompt.toLowerCase().includes(realisticPhrase)) {
-                    return prevPrompt; // Avoid duplication
-                }
-                // Add with a comma if prompt is not empty
-                return prevPrompt ? `${prevPrompt}, ${realisticPhrase}` : realisticPhrase;
-            });
-            return; // Exit without changing the active style
-        }
-        
-        setStyle(selectedStyle);
-        // Reset images if switching to a style that doesn't use them
-        if (!['Blend Photos', 'Foto Bersama'].includes(selectedStyle)) {
-            setUploadedBgImage({ url: '', file: null });
-        }
-        if (selectedStyle !== 'Ganti Baju') {
-            setClothingImage({ url: '', file: null });
-        }
-        if (selectedStyle !== 'Pose') {
-            setPoseImage({ url: '', file: null });
-        }
+  const handleDownload = (imageUrl: string | null, type: 'original' | 'generated') => {
+      if (!imageUrl) return;
 
+      const originalFileName = mainImage?.name || 'image.png';
+      const filename = generateFilename(type, activeStyle, originalFileName, downloadCounter.current);
+      
+      const link = document.createElement('a');
+      link.href = imageUrl;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      downloadCounter.current += 1;
+  };
 
-        switch (selectedStyle) {
-            case 'Cinematic':
-                setPrompt('Cinematic, dramatic lighting, high detail, epic, movie still');
-                break;
-            case 'Anime':
-                setPrompt('Anime style, vibrant colors, detailed line art, cel shaded');
-                break;
-            case 'Watercolor':
-                setPrompt('Watercolor painting, soft edges, blended colors, artistic');
-                break;
-            case 'Pixel Art':
-                setPrompt('Pixel art, 16-bit, retro gaming style, limited palette');
-                break;
-            case 'Blend Photos':
-                setPrompt('Seamlessly blend the subject from the first image into the scene of the second image. Match the lighting, shadows, and overall atmosphere for a realistic composite.');
-                break;
-            case 'Ganti Baju':
-                setPrompt('Take the person from the first image and realistically dress them in the outfit from the second image. The final image should show the original person wearing the new clothes, maintaining their face, body, and the original background.');
-                break;
-            case 'Foto Bersama':
-                 setPrompt('Take the main person from the first image and the main person from the second image and place them together in a single new photo, as if they are posing together. Ensure the lighting, shadows, and scale are consistent for both people to make the final image look like a real photograph taken at the same time. The setting is [DESCRIBE THE SCENE, STYLE, AND ATMOSPHERE HERE].');
-                break;
-            case 'Pose':
-                setPrompt("Goal: Apply the pose from the second image (pose reference) to the character in the first image (subject).\n\nInstructions: Redraw the subject from the first image, making them adopt the exact pose of the person in the second image. The final image must keep the original subject's appearance, clothing, and background, but change their pose to match the reference. Faithfully copy the limb positions, body angle, and orientation from the reference pose.");
-                break;
-            case 'Ganti Rambut':
-                setPrompt('Change the hair of the person in the image to [DESCRIBE NEW HAIR STYLE HERE, e.g., long and wavy, short pixie cut, bright pink]. Keep the person\'s face, clothing, and the background the same.');
-                break;
-            case 'Action Figure':
-                setPrompt('photo of a detailed action figure, plastic toy, articulated joints, miniature scale');
-                break;
-            case 'Action Figure Neon Lighting':
-                setPrompt('Create a 1/7 scale commercialized figure of the-character in the illustration, in a hyper-realistic futuristic tech lab environment. Place the figure on a sturdy circular transparent acrylic base that serves as a physical support. Inside the acrylic base, embed glowing neon-blue circuit-like patterns, with geometric lines, microchip motifs, and radial light segments, giving the impression of advanced technology etched into the surface. The glowing circuits should cast soft reflections onto the desk surface while keeping the base solid and realistic. Next to the desk is the real person in the picture, in the real life size with the same attire as in the picture and the figurine, cleaning the figurine carefully with a fine brush. In the background, add a futuristic glass cabinet filled with multiple finished action figures arranged like a collector\'s display, highlighted by subtle neon lighting.');
-                break;
-            case 'Pixar Style':
-                setPrompt('Pixar animation style, 3D render, cute and expressive characters, vibrant colors, detailed textures');
-                break;
-            case 'Sketsa':
-                setPrompt('black and white pencil sketch, hand-drawn, hatching and cross-hatching, artistic sketch');
-                break;
-            case 'Ghibli Style':
-                setPrompt('Studio Ghibli anime style, hand-drawn animation look, painterly backgrounds, whimsical, nostalgic');
-                break;
-            case 'Hyper Realistic':
-                setPrompt('hyper-realistic, photorealistic, extremely high detail, sharp focus, 8k resolution');
-                break;
-            case 'Hyper Detail':
-                setPrompt('hyper-detailed, intricate details, complex patterns, macro photography style');
-                break;
-            case 'Super Realistis':
-                setPrompt('super realistic, indistinguishable from a photograph, lifelike textures, natural lighting');
-                break;
-            case 'Mewah':
-                setPrompt('luxurious, elegant, opulent, high-end, rich materials like gold and velvet, sophisticated');
-                break;
-            case 'Miniature Actionfigure':
-                setPrompt('Create a 1/7 scale commercial statue (character in the picture) with a realistic style in a real environment. 100% face lock similarity from the uploaded photo. The statue is placed on a computer desk. It has a round transparent acrylic base. Beside the table is a real person in the picture, with life-size and a real person in the picture and statue. Clean the statue carefully with a soft brush. In a modern style studio space with bright lighting. With some toy collections and action figures in the background.');
-                break;
-            case 'Aesthetic candid photography':
-                setPrompt('Aesthetic candid photography, a young man casually on a high sidewalk, with a bus stop behind him after the rain. On the fogged glass of the bus stop, there are vulgar scribbles typical of rebellious youths, written with finger streaks on the mist, such as: “ASU!”, “Woi BABI!”, “Ngentotlah!”, and many more. The young man appears as if he’s waiting for a bus while holding a magazine. The camera also focuses on the reflection in the puddle on the asphalt, clearly showing the mirrored image. The water surface is slightly rippled, with lots of fallen leaves and white flowers, some floating. Foreground: a lush green tree above with white blossoms, along with water splashes caused by something dropping into the puddle. The subject is wearing an oversized black top, necklace, wide relaxed-fit jeans, a wristwatch, and white sneakers. The overall vibe is natural, realistic, with a moody tone, desaturated colors, evoking a melancholic yet aesthetic atmosphere.');
-                break;
-            case 'Elegant Hijab Woman':
-                setPrompt('A stunning young woman in a shimmering turquoise hijab and gown stands gracefully on a futuristic glass bridge glowing with ethereal teal light. Her veil sparkles with tiny golden lights like constellations, creating a dreamy, magical aura. The embroidery on her dress is intricate and regal, with delicate lace details that shimmer softly. Behind her, the glass pathway reflects infinite glowing lights, stretching toward towering jagged cliffs illuminated by warm lanterns in the misty distance. The atmosphere feels surreal, cinematic, and enchanting blending elegance, fantasy, and modern architecture. Ultra realistic, highly detailed, soft cinematic lighting, dreamy bokeh, 8K, masterpiece, photorealism');
-                break;
-            case 'Expand Image':
-                setPrompt('Expand the canvas of this image, intelligently filling in the new areas to create a larger, more complete scene. Maintain the original style and content while seamlessly extending the background and context. This is also known as outpainting or uncropping.');
-                break;
-            default:
-                setPrompt('');
-        }
-    };
-    
-    const callGeminiApi = useCallback(async (currentPrompt: string, imageParts: Part[]) => {
-        setIsLoading(true);
-        setError('');
-        setGeneratedImage({ url: '', file: null });
+  const handleUseAsInput = () => {
+      if (!generatedImage) return;
 
-        try {
-            const response = await fetch('/api/generate', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ prompt: currentPrompt, imageParts }),
-            });
+      fetch(generatedImage)
+          .then(res => res.blob())
+          .then(blob => {
+              const file = new File([blob], 'generated_image.png', { type: 'image/png' });
+              setMainImage(file);
+              setMainImagePreview(generatedImage);
+              // Optionally reset other fields
+              setGeneratedImage(null);
+          });
+  };
 
-            const result = await response.json();
+  const copyPromptToClipboard = useCallback(() => {
+    if (prompt) {
+        navigator.clipboard.writeText(prompt);
+    }
+  }, [prompt]);
 
-            if (!response.ok) {
-                throw new Error(result.error || 'An unknown error occurred from the backend.');
-            }
+  const currentStyle = styles.find(s => s.name === activeStyle) || styles[0];
+  const isBlendMode = !currentStyle.singleUploader;
+
+  return (
+    <>
+        <header className="navbar">
+            <div className="navbar-container">
+                <h1>AI Image Transformer</h1>
+            </div>
+        </header>
+
+        <main className="main-content">
+            <section className="hero">
+                <h2>Transform Your Ideas into Visual Reality</h2>
+            </section>
             
-            const { base64, mimeType } = result;
-            const imageUrl = `data:${mimeType};base64,${base64}`;
-            
-            const res = await fetch(imageUrl);
-            const blob = await res.blob();
-            const file = new File([blob], "generated_image.png", { type: mimeType });
+            <div className="app-container">
+                <aside className="controls-panel panel">
+                <h2>Controls</h2>
 
-            setGeneratedImage({ url: imageUrl, file });
-
-        } catch (e) {
-            const errorMessage = e instanceof Error ? e.message : 'An unknown error occurred.';
-            setError(`Failed to generate content: ${errorMessage}`);
-            console.error(e);
-        } finally {
-            setIsLoading(false);
-        }
-    }, []);
-
-    const handleTransform = async () => {
-        if (!uploadedImage.file) {
-            setError('Please upload an original image first.');
-            return;
-        }
-        if ((style === 'Blend Photos' || style === 'Foto Bersama') && !uploadedBgImage.file) {
-            setError('Please upload a second image for this style.');
-            return;
-        }
-        if (style === 'Ganti Baju' && !clothingImage.file) {
-            setError('Please upload a clothing style image.');
-            return;
-        }
-        if (style === 'Pose' && !poseImage.file) {
-            setError('Please upload a pose reference image.');
-            return;
-        }
-
-
-        let fullPrompt = prompt;
-        const optionsText: string[] = [];
-        if (lockFace) optionsText.push('keep the original face identical');
-        if (preserveSubject) optionsText.push('preserve the main subject');
-        if (preserveScene) optionsText.push('preserve the overall scene composition');
-
-        if (!aspectRatio.startsWith('Original')) {
-            const ratioValue = aspectRatio;
-            const aspectRatioInstruction = `The highest priority is to change the image's aspect ratio to ${ratioValue}. Re-render the entire scene to fit these new dimensions. If the new aspect ratio is wider or taller, intelligently expand the background and scene using outpainting techniques. If the new aspect ratio requires cropping, creatively frame the main subject to best fit the new dimensions. The final generated image MUST have a ${ratioValue} aspect ratio.`;
-            // Prepend the instruction for high priority
-            fullPrompt = `${aspectRatioInstruction} The original creative prompt is: "${fullPrompt}"`;
-        }
-
-        if (optionsText.length > 0) {
-            fullPrompt += `. Additional options to follow: ${optionsText.join(', ')}.`;
-        }
-
-        const imageParts: Part[] = [await fileToGenerativePart(uploadedImage.file)];
-        if (uploadedBgImage.file && ['Blend Photos', 'Foto Bersama'].includes(style)) {
-             imageParts.push(await fileToGenerativePart(uploadedBgImage.file));
-        } else if (clothingImage.file && style === 'Ganti Baju') {
-            imageParts.push(await fileToGenerativePart(clothingImage.file));
-        } else if (poseImage.file && style === 'Pose') {
-            imageParts.push(await fileToGenerativePart(poseImage.file));
-        }
-
-
-        callGeminiApi(fullPrompt, imageParts);
-    };
-
-    const handleSecondaryTransform = async (transformPrompt: string) => {
-        if (!generatedImage.file) {
-            setError('There is no generated image to transform.');
-            return;
-        }
-        const imageParts: Part[] = [await fileToGenerativePart(generatedImage.file)];
-        callGeminiApi(transformPrompt, imageParts);
-    };
-
-    const handleAIDescribe = async () => {
-        if (!uploadedImage.file) {
-            setError('Please upload an image to describe.');
-            return;
-        }
-       
-        setIsDescribing(true);
-        setError('');
-        try {
-            const imagePart = await fileToGenerativePart(uploadedImage.file);
-            
-            const response = await fetch('/api/describe', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ imagePart }),
-            });
-
-            const result = await response.json();
-             if (!response.ok) {
-                throw new Error(result.error || 'An unknown error occurred from the backend.');
-            }
-
-            const description = result.description;
-            if (description) {
-                setPrompt(description);
-            } else {
-                setError("AI couldn't generate a description for this image.");
-            }
-        } catch (e) {
-            const errorMessage = e instanceof Error ? e.message : 'An unknown error occurred.';
-            setError(`Failed to generate description: ${errorMessage}`);
-            console.error(e);
-        } finally {
-            setIsDescribing(false);
-        }
-    };
-
-    const handleUseAsInput = () => {
-        if (generatedImage.url && generatedImage.file) {
-            const img = new Image();
-            img.onload = () => {
-                 const ratio = getAspectRatio(img.width, img.height);
-                 setUploadedImage({ 
-                    url: generatedImage.url, 
-                    file: generatedImage.file, 
-                    aspectRatio: ratio 
-                });
-                setAspectRatio(`Original (${ratio})`);
-            };
-            img.src = generatedImage.url;
-            setGeneratedImage({ url: '', file: null });
-        }
-    };
-    
-    const handleDownload = () => {
-        if (generatedImage.url) {
-            const filename = generateFilename('generated', style, '', downloadCounter.current.generated);
-            const a = document.createElement('a');
-            a.href = generatedImage.url;
-            a.download = filename;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            downloadCounter.current.generated++;
-        }
-    };
-
-    const handleOriginalDownload = () => {
-        if (uploadedImage.url && uploadedImage.file) {
-            const filename = generateFilename('original', '', uploadedImage.file.name, downloadCounter.current.original);
-            const a = document.createElement('a');
-            a.href = uploadedImage.url;
-            a.download = filename;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            downloadCounter.current.original++;
-        }
-    };
-
-    const handleCopy = async () => {
-        if (generatedImage.url) {
-            try {
-                const response = await fetch(generatedImage.url);
-                const blob = await response.blob();
-                await navigator.clipboard.write([
-                    new ClipboardItem({ [blob.type]: blob })
-                ]);
-            } catch (err) {
-                console.error('Failed to copy image: ', err);
-                setError('Failed to copy image to clipboard.');
-            }
-        }
-    };
-
-    const handleUpscale = () => {
-        handleSecondaryTransform("Upscale the image to 2x its original resolution, enhancing details without adding new elements.");
-    };
-
-    const handleEnhanceQuality = () => {
-        handleSecondaryTransform("Enhance the overall quality of this image, improving clarity, color balance, and sharpness.");
-    };
-
-    const handleRemoveBackground = () => {
-        handleSecondaryTransform("Remove the background from this image, leaving only the main subject with a transparent background.");
-    };
-    
-    const handleChangeBackground = () => {
-        const newBgPrompt = window.prompt("Describe the new background you want:", "A beautiful beach at sunset");
-        if (newBgPrompt) {
-            handleSecondaryTransform(`Change the background to: ${newBgPrompt}. Make sure the subject is seamlessly integrated.`);
-        }
-    };
-
-    const handleColorBalance = () => {
-        const adjustment = window.prompt("Describe the color balance adjustment:", "Make the image warmer and more saturated");
-        if (adjustment) {
-            handleSecondaryTransform(`Adjust the color balance of the image. The user requested: "${adjustment}". Keep the subject and all elements the same, only change the color tones.`);
-        }
-    };
-
-    const toolbarActions: ImageToolbarProps = {
-        onDownload: handleDownload,
-        onUseAsInput: handleUseAsInput,
-        onCopy: handleCopy,
-        onUpscale: handleUpscale,
-        onEnhance: handleEnhanceQuality,
-        onRemoveBg: handleRemoveBackground,
-        onChangeBg: handleChangeBackground,
-        onColorBalance: handleColorBalance,
-    };
-
-    const styleButtons = [
-        'Default', 'Cinematic', 'Anime', 'Watercolor', 'Pixel Art', 'Blend Photos', 'Foto Bersama', 'Ganti Baju', 'Pose', 'Ganti Rambut',
-        'Action Figure', 'Action Figure Neon Lighting', 'Pixar Style', 'Sketsa', 'Ghibli Style', 'Hyper Realistic', 
-        'Hyper Detail', 'Super Realistis', '+ Super Realistis', 'Mewah', 'Miniature Actionfigure', 'Aesthetic candid photography', 'Elegant Hijab Woman', 'Expand Image'
-    ];
-    
-    const showTwoUploders = ['Blend Photos', 'Foto Bersama', 'Ganti Baju', 'Pose'].includes(style);
-
-    const getUploaderInfo = () => {
-        switch (style) {
-            case 'Blend Photos':
-                return {
-                    helperText: 'Upload a subject image and a background image to blend.',
-                    label1: 'Subject',
-                    label2: 'Background',
-                    image2: uploadedBgImage,
-                    handler2: handleBgImageUpload,
-                };
-            case 'Foto Bersama':
-                return {
-                    helperText: 'Upload a photo of each person to combine them.',
-                    label1: 'Person 1',
-                    label2: 'Person 2',
-                    image2: uploadedBgImage,
-                    handler2: handleBgImageUpload,
-                };
-            case 'Ganti Baju':
-                 return {
-                    helperText: 'Upload a photo of a person and a photo of the desired clothing style.',
-                    label1: 'Person',
-                    label2: 'Clothing Style',
-                    image2: clothingImage,
-                    handler2: handleClothingImageUpload,
-                };
-            case 'Pose':
-                 return {
-                    helperText: 'Upload a subject image and a reference image for the desired pose.',
-                    label1: 'Subject',
-                    label2: 'Pose Reference',
-                    image2: poseImage,
-                    handler2: handlePoseImageUpload,
-                };
-            default:
-                return { helperText: '', label1: '', label2: '', image2: null, handler2: () => {} };
-        }
-    };
-    const uploaderInfo = getUploaderInfo();
-
-    return (
-        <>
-            <Navbar />
-            <main className="main-content">
-                <Hero />
-                <div className="app-container">
-                    <div className="panel controls-panel">
-                        <h2>Controls</h2>
-
-                        <div className="control-section">
-                            <h3>1. Original Image</h3>
-                             {showTwoUploders ? (
-                                <div className="blend-uploader-container">
-                                    <p className="helper-text">{uploaderInfo.helperText}</p>
-                                    <div className="blend-inputs">
-                                        <label className="upload-box">
-                                            <span className="upload-box-label">{uploaderInfo.label1}</span>
-                                            <div className="upload-box-content">
-                                                {uploadedImage.url ? (
-                                                    <img src={uploadedImage.url} alt={uploaderInfo.label1} className="upload-box-thumbnail" />
-                                                ) : (
-                                                    <span className="upload-box-plus">+</span>
-                                                )}
-                                            </div>
-                                            <input type="file" accept="image/*" onChange={handleImageUpload} />
-                                        </label>
-                                        <label className={`upload-box ${!uploadedImage.file ? 'disabled' : ''}`}>
-                                             <span className="upload-box-label">{uploaderInfo.label2}</span>
-                                            <div className="upload-box-content">
-                                                {uploaderInfo.image2?.url ? (
-                                                    <img src={uploaderInfo.image2.url} alt={uploaderInfo.label2} className="upload-box-thumbnail" />
-                                                ) : (
-                                                    <span className="upload-box-plus">+</span>
-                                                )}
-                                            </div>
-                                            <input type="file" accept="image/*" onChange={uploaderInfo.handler2} disabled={!uploadedImage.file} />
-                                        </label>
+                {/* --- Image Upload Section --- */}
+                <div className="control-section">
+                    <h3>{isBlendMode ? 'Upload Images' : 'Upload Image'}</h3>
+                    {isBlendMode ? (
+                        <div className="blend-uploader-container">
+                             <p className="helper-text">Select a main image and a style image to blend them together.</p>
+                             <div className="blend-inputs">
+                                <div className="upload-box" onClick={() => mainImageInputRef.current?.click()}>
+                                    <div className="upload-box-content">
+                                        {mainImagePreview ? <img src={mainImagePreview} alt="Main Preview" className="upload-box-thumbnail"/> : <span className="upload-box-plus">+</span>}
                                     </div>
+                                    <p className="upload-box-label">Main Image</p>
+                                    <input ref={mainImageInputRef} type="file" accept="image/*" onChange={(e) => handleFileChange(e, setMainImage, setMainImagePreview)} style={{ display: 'none' }} />
                                 </div>
-                            ) : (
-                                <div className="single-uploader-container">
-                                     <div className="upload-main-container">
-                                        {uploadedImage.url && <img id="main-image-thumbnail" src={uploadedImage.url} alt="Uploaded thumbnail" />}
-                                        <label className="upload-btn">
-                                            {uploadedImage.url ? 'Change' : '+ Select'}
-                                            <input type="file" accept="image/*" onChange={handleImageUpload} style={{ display: 'none' }} />
-                                        </label>
+                                <div className="upload-box" onClick={() => styleImageInputRef.current?.click()}>
+                                    <div className="upload-box-content">
+                                        {styleImagePreview ? <img src={styleImagePreview} alt="Style Preview" className="upload-box-thumbnail"/> : <span className="upload-box-plus">+</span>}
                                     </div>
+                                    <p className="upload-box-label">Style Image</p>
+                                    <input ref={styleImageInputRef} type="file" accept="image/*" onChange={(e) => handleFileChange(e, setStyleImage, setStyleImagePreview)} style={{ display: 'none' }} />
                                 </div>
-                            )}
-                        </div>
-
-
-                        <div className="control-section">
-                            <h3>2. Style</h3>
-                            <div className="style-selector">
-                                {styleButtons.map(s => (
-                                    <button key={s} className={`style-button ${style === s ? 'active' : ''}`} onClick={() => selectStyle(s)}>
-                                        {s}
-                                    </button>
-                                ))}
                             </div>
                         </div>
+                    ) : (
+                        <div className="single-uploader-container">
+                            <div className="upload-main-container">
+                                {mainImagePreview && <img id="main-image-thumbnail" src={mainImagePreview} alt="Main preview" />}
+                                <button className="upload-btn" onClick={() => mainImageInputRef.current?.click()}>
+                                    {mainImage ? 'Change Image' : 'Choose Image'}
+                                </button>
+                                <input ref={mainImageInputRef} type="file" accept="image/*" onChange={(e) => handleFileChange(e, setMainImage, setMainImagePreview)} style={{ display: 'none' }} />
+                            </div>
+                        </div>
+                    )}
+                </div>
 
-                        <div className="control-section">
-                            <h3>3. Prompt</h3>
-                            <div className="prompt-container">
-                                <textarea
-                                    id="prompt-input"
-                                    value={prompt}
-                                    onChange={(e) => setPrompt(e.target.value)}
-                                    placeholder="e.g., A cat wearing a superhero cape"
-                                    rows={4}
+                {/* --- Style Selection --- */}
+                <div className="control-section">
+                    <h3>Style</h3>
+                    <div className="style-selector">
+                    {styles.map(style => (
+                        <button
+                        key={style.name}
+                        className={`style-button ${activeStyle === style.name ? 'active' : ''}`}
+                        onClick={() => handleStyleClick(style)}
+                        >
+                        {style.name}
+                        </button>
+                    ))}
+                    </div>
+                </div>
+
+                {/* --- Prompt Input --- */}
+                <div className="control-section">
+                    <h3>Prompt</h3>
+                    <div className="prompt-container">
+                    <textarea
+                        id="prompt-input"
+                        value={prompt}
+                        onChange={(e) => setPrompt(e.target.value)}
+                        placeholder={
+                            currentStyle.requiresPrompt 
+                                ? `e.g., a futuristic cyberpunk city` 
+                                : `Describe your vision...`
+                        }
+                        rows={4}
+                    />
+                     <button 
+                        className="ai-describe-button" 
+                        onClick={handleDescribe}
+                        disabled={isDescribeLoading || !mainImage}
+                        aria-label="Generate description from image"
+                     >
+                        {isDescribeLoading ? <span className="spinner-small"></span> : <DescribeIcon />}
+                        AI Describe
+                    </button>
+                    </div>
+                </div>
+
+                {/* --- Options --- */}
+                <div className="control-section">
+                     <h3>Options</h3>
+                     <div className="options-container">
+                        <div className="option-item">
+                            <label htmlFor="aspect-ratio">Aspect Ratio</label>
+                            <select 
+                                id="aspect-ratio" 
+                                className="aspect-ratio-select"
+                                value={aspectRatio} 
+                                onChange={(e) => setAspectRatio(e.target.value)}
+                                disabled={isAspectRatioLocked}
+                            >
+                                <option value="1:1">1:1 (Square)</option>
+                                <option value="16:9">16:9 (Widescreen)</option>
+                                <option value="9:16">9:16 (Vertical)</option>
+                                <option value="4:3">4:3 (Standard)</option>
+                                <option value="3:4">3:4 (Portrait)</option>
+                            </select>
+                        </div>
+                        <div className="checkbox-group">
+                            <div className="checkbox-container">
+                                <input 
+                                    type="checkbox" 
+                                    id="lock-aspect-ratio" 
+                                    checked={isAspectRatioLocked}
+                                    onChange={(e) => setIsAspectRatioLocked(e.target.checked)}
                                 />
-                                <button 
-                                    className="ai-describe-button" 
-                                    onClick={handleAIDescribe} 
-                                    disabled={!uploadedImage.file || isDescribing || isLoading}
-                                    title="Generate a prompt from the original image"
-                                >
-                                    <AIDescribeIcon />
-                                    {isDescribing ? 'Describing...' : 'AI Describe'}
+                                <label htmlFor="lock-aspect-ratio">Lock Aspect Ratio</label>
+                            </div>
+                        </div>
+                     </div>
+                </div>
+
+                <button
+                    className="transform-button"
+                    onClick={generateImage}
+                    disabled={isLoading}
+                >
+                    {isLoading ? 'Transforming...' : 'Transform'}
+                </button>
+
+                {error && <p className="error-message">{error}</p>}
+                </aside>
+                
+                <div className="image-panel">
+                <div className="panel" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+                    <h3>Generated Image</h3>
+                    <div className="image-placeholder">
+                    {isLoading && (
+                        <div className="loading-overlay">
+                            <div className="spinner"></div>
+                            <p>AI is thinking...</p>
+                        </div>
+                    )}
+                    {generatedImage ? (
+                        <>
+                            <img src={generatedImage} alt="Generated" />
+                            <div className="image-toolbar">
+                                <button className="toolbar-button" onClick={() => handleDownload(generatedImage, 'generated')} aria-label="Download generated image">
+                                    <DownloadIcon />
+                                </button>
+                                <div className="toolbar-divider"></div>
+                                <button className="toolbar-button" onClick={handleUseAsInput} aria-label="Use as input">
+                                    <UseAsInputIcon />
+                                </button>
+                                <div className="toolbar-divider"></div>
+                                 <button className="toolbar-button" onClick={copyPromptToClipboard} aria-label="Copy prompt">
+                                    <CopyIcon />
+                                </button>
+                            </div>
+                        </>
+                    ) : (
+                        <div className="upload-prompt">
+                            <p>Your generated image will appear here.</p>
+                        </div>
+                    )}
+                    </div>
+                </div>
+                {mainImagePreview && (
+                    <div className="panel" style={{ marginTop: '20px' }}>
+                        <h3>Original Image</h3>
+                        <div className="image-placeholder">
+                            <img src={mainImagePreview} alt="Original" />
+                             <div className="image-toolbar-single">
+                                <button className="toolbar-button" onClick={() => handleDownload(mainImagePreview, 'original')} aria-label="Download original image">
+                                    <DownloadIcon />
                                 </button>
                             </div>
                         </div>
-                        
-                         <div className="control-section">
-                            <h3>4. Options</h3>
-                            <div className="options-container">
-                                <div className="option-item">
-                                    <label htmlFor="aspect-ratio">Aspect Ratio</label>
-                                    <select 
-                                        id="aspect-ratio" 
-                                        className="aspect-ratio-select"
-                                        value={aspectRatio}
-                                        onChange={(e) => setAspectRatio(e.target.value)}
-                                        disabled={!uploadedImage.file}
-                                    >
-                                        <option value={`Original (${uploadedImage.aspectRatio})`}>Original ({uploadedImage.aspectRatio})</option>
-                                        <option value="1:1">Square (1:1)</option>
-                                        <option value="16:9">Widescreen (16:9)</option>
-                                        <option value="9:16">Portrait (9:16)</option>
-                                        <option value="4:3">Landscape (4:3)</option>
-                                        <option value="3:4">Vertical (3:4)</option>
-                                    </select>
-                                </div>
-                                <div className="option-item checkbox-group">
-                                    <div className="checkbox-container">
-                                        <input type="checkbox" id="lock-face" checked={lockFace} onChange={(e) => setLockFace(e.target.checked)} />
-                                        <label htmlFor="lock-face">Lock Face (100%)</label>
-                                    </div>
-                                    <div className="checkbox-container">
-                                        <input type="checkbox" id="preserve-subject" checked={preserveSubject} onChange={(e) => setPreserveSubject(e.target.checked)} />
-                                        <label htmlFor="preserve-subject">Preserve Subject</label>
-                                    </div>
-                                    <div className="checkbox-container">
-                                        <input type="checkbox" id="preserve-scene" checked={preserveScene} onChange={(e) => setPreserveScene(e.target.checked)} />
-                                        <label htmlFor="preserve-scene">Preserve Scene</label>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <button className="transform-button" onClick={handleTransform} disabled={isLoading || isDescribing || !uploadedImage.file}>
-                            {isLoading ? 'Generating...' : 'Transform Image'}
-                        </button>
-                        {error && <p className="error-message">{error}</p>}
                     </div>
-
-                    <div className="panel image-panel">
-                        <h3>Original</h3>
-                        <ImagePlaceholder
-                            image={uploadedImage}
-                            isLoading={false}
-                            onImageUpload={handleImageUpload}
-                            isOriginal={true}
-                            onDownload={handleOriginalDownload}
-                        />
-                    </div>
-
-                    <div className="panel image-panel">
-                        <h3>Generated</h3>
-                        <ImagePlaceholder image={generatedImage} isLoading={isLoading} onImageUpload={() => {}} toolbarActions={toolbarActions} />
-                    </div>
+                )}
                 </div>
-            </main>
-            <Footer />
-        </>
-    );
+            </div>
+        </main>
+        <footer className="footer">
+            <p>Powered by Gemini AI. Created by IT PALUGADA.</p>
+        </footer>
+    </>
+  );
 };
 
-const root = createRoot(document.getElementById('root')!);
+const container = document.getElementById('root');
+const root = createRoot(container!);
 root.render(<App />);

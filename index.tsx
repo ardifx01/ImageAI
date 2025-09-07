@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, useRef } from 'react';
 import { createRoot } from 'react-dom/client';
 import { GoogleGenAI, Modality, Part } from "@google/genai";
@@ -25,16 +24,36 @@ const fileToGenerativePart = async (file: File): Promise<Part> => {
   };
 };
 
+// Objek untuk mendefinisikan rasio aspek standar dan nilai desimalnya
+const standardRatios: { [key: string]: number } = {
+  '1:1': 1,
+  '16:9': 16 / 9,
+  '9:16': 9 / 16,
+  '4:3': 4 / 3,
+  '3:4': 3 / 4,
+};
+
 /**
- * Menghitung rasio aspek gambar.
+ * Menemukan rasio aspek standar terdekat dengan dimensi yang diberikan.
  * @param width Lebar gambar.
  * @param height Tinggi gambar.
- * @returns String yang mewakili rasio aspek (misalnya, "16:9").
+ * @returns String yang mewakili rasio aspek standar terdekat (misalnya, "16:9").
  */
-const getAspectRatio = (width: number, height: number): string => {
-  const gcd = (a: number, b: number): number => (b === 0 ? a : gcd(b, a % b));
-  const divisor = gcd(width, height);
-  return `${width / divisor}:${height / divisor}`;
+const getClosestAspectRatio = (width: number, height: number): string => {
+  if (height === 0) return '1:1'; // Hindari pembagian dengan nol
+  const imageRatio = width / height;
+
+  let closestRatio = '';
+  let minDifference = Infinity;
+
+  for (const ratioKey in standardRatios) {
+    const difference = Math.abs(imageRatio - standardRatios[ratioKey]);
+    if (difference < minDifference) {
+      minDifference = difference;
+      closestRatio = ratioKey;
+    }
+  }
+  return closestRatio;
 };
 
 /**
@@ -141,7 +160,7 @@ const App = () => {
         setPreview(reader.result as string);
         if (setImage === setMainImage && !isAspectRatioLocked) {
           const img = new Image();
-          img.onload = () => setAspectRatio(getAspectRatio(img.width, img.height));
+          img.onload = () => setAspectRatio(getClosestAspectRatio(img.width, img.height));
           img.src = reader.result as string;
         }
       };

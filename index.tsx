@@ -1,8 +1,58 @@
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import type { Part } from "@google/genai"; // Hanya menggunakan tipe, bukan seluruh library
 
 // --- Fungsi Bantuan ---
+
+/**
+ * Mengubah ukuran gambar jika dimensinya melebihi batas maksimal.
+ * @param file File gambar yang akan diubah ukurannya.
+ * @param maxDimension Dimensi maksimal (lebar atau tinggi).
+ * @returns Promise yang diselesaikan dengan File gambar yang telah diubah ukurannya.
+ */
+const resizeImage = (file: File, maxDimension: number): Promise<File> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = (event) => {
+      const img = new Image();
+      img.src = event.target!.result as string;
+      img.onload = () => {
+        let { width, height } = img;
+        if (width > height) {
+          if (width > maxDimension) {
+            height *= maxDimension / width;
+            width = maxDimension;
+          }
+        } else {
+          if (height > maxDimension) {
+            width *= maxDimension / height;
+            height = maxDimension;
+          }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          return reject(new Error('Tidak dapat mendapatkan konteks kanvas'));
+        }
+        ctx.drawImage(img, 0, 0, width, height);
+        canvas.toBlob((blob) => {
+          if (blob) {
+            const resizedFile = new File([blob], file.name, { type: file.type, lastModified: Date.now() });
+            resolve(resizedFile);
+          } else {
+            reject(new Error('Gagal membuat blob dari kanvas.'));
+          }
+        }, file.type, 0.95); // Kualitas 95%
+      };
+      img.onerror = reject;
+    };
+    reader.onerror = reject;
+  });
+};
+
 
 /**
  * Mengonversi file menjadi objek yang dapat dikirim ke backend.
@@ -134,6 +184,16 @@ const styles = [
     { name: 'Pose Bersama', prompt: 'Ambil orang dari gambar pertama dan orang dari gambar kedua, lalu gabungkan mereka ke dalam satu foto baru yang kohesif. Buatlah seolah-olah mereka sedang berpose bersama secara alami untuk sebuah foto. Pertahankan kemiripan wajah dan fitur utama dari kedua orang tersebut. Tempatkan mereka di latar belakang studio yang netral. {prompt}', singleUploader: false, placeholder: 'Tambahkan detail, mis: di taman kota, gaya kasual...' },
 ];
 
+const loadingMessages = [
+    "Mempersiapkan gambar Anda...",
+    "Mengirim permintaan ke Gemini AI...",
+    "AI sedang menganalisis permintaan Anda...",
+    "Menciptakan keajaiban visual...",
+    "Menyempurnakan detail akhir...",
+    "Hampir selesai, sentuhan terakhir..."
+];
+
+
 // --- Komponen Aplikasi Utama ---
 
 const App = () => {
@@ -150,35 +210,79 @@ const App = () => {
   const [mainImagePreview, setMainImagePreview] = useState<string | null>(null);
   const [styleImagePreview, setStyleImagePreview] = useState<string | null>(null);
   const [isDescribeLoading, setIsDescribeLoading] = useState<boolean>(false);
+  const [loadingMessage, setLoadingMessage] = useState<string>(loadingMessages[0]);
   
   // Ref untuk input file
   const mainImageInputRef = useRef<HTMLInputElement>(null);
   const styleImageInputRef = useRef<HTMLInputElement>(null);
   const downloadCounter = useRef(1);
 
+  // Efek untuk menangani pesan pemuatan dinamis
+  useEffect(() => {
+    let intervalId: number | undefined;
+    if (isLoading) {
+      let messageIndex = 0;
+      setLoadingMessage(loadingMessages[messageIndex]);
+      intervalId = window.setInterval(() => {
+        messageIndex = (messageIndex + 1) % loadingMessages.length;
+        setLoadingMessage(loadingMessages[messageIndex]);
+      }, 3500); // Ganti pesan setiap 3.5 detik
+    }
+    return () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+    };
+  }, [isLoading]);
+
   // --- Handler ---
 
-  const handleFileChange = (
+  const handleFileChange = async (
     e: React.ChangeEvent<HTMLInputElement>,
     setImage: React.Dispatch<React.SetStateAction<File | null>>,
     setPreview: React.Dispatch<React.SetStateAction<string | null>>
   ) => {
     const file = e.target.files?.[0];
     if (file) {
-      setImage(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreview(reader.result as string);
-        if (setImage === setMainImage && !isAspectRatioLocked) {
-          const img = new Image();
-          img.onload = () => setAspectRatio(getClosestAspectRatio(img.width, img.height));
-          img.src = reader.result as string;
+        try {
+            setError('');
+            // Langkah 1: Tangani rasio aspek berdasarkan gambar asli
+            if (setImage === setMainImage && !isAspectRatioLocked) {
+                const img = new Image();
+                // Gunakan promise untuk memastikan rasio aspek diatur sebelum melanjutkan
+                await new Promise<void>((resolve, reject) => {
+                    img.onload = () => {
+                        setAspectRatio(getClosestAspectRatio(img.width, img.height));
+                        URL.revokeObjectURL(img.src); // Bersihkan object URL
+                        resolve();
+                    };
+                    img.onerror = () => {
+                        URL.revokeObjectURL(img.src);
+                        reject(new Error("Gagal memuat gambar untuk menentukan rasio aspek."));
+                    };
+                    img.src = URL.createObjectURL(file);
+                });
+            }
+
+            // Langkah 2: Ubah ukuran gambar untuk optimisasi
+            const resizedFile = await resizeImage(file, 1024);
+
+            // Langkah 3: Perbarui state dengan file yang diubah ukurannya dan pratinjaunya
+            setImage(resizedFile);
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setPreview(reader.result as string);
+            };
+            reader.readAsDataURL(resizedFile);
+
+        } catch (err: any) {
+            console.error("Error memproses gambar:", err);
+            setError(`Gagal memproses gambar: ${err.message}. Silakan coba gambar lain.`);
+        } finally {
+            // Hapus nilai input untuk memungkinkan pengunggahan ulang file yang sama
+            e.target.value = '';
         }
-      };
-      reader.readAsDataURL(file);
     }
-    // Hapus nilai input untuk memungkinkan pengunggahan ulang file yang sama
-    e.target.value = ''; 
   };
   
   const handleStyleClick = (style: { name: string, prompt: string, singleUploader: boolean, requiresPrompt?: boolean }) => {
@@ -286,12 +390,20 @@ const App = () => {
         });
 
         if (!response.ok) {
-            const err = await response.json();
-            const message = err.error || `Terjadi kesalahan: ${response.statusText}`;
+            // Coba parsing sebagai JSON, jika gagal, gunakan teks
+            let errorText = response.statusText;
+            try {
+                const err = await response.json();
+                errorText = err.error || `Terjadi kesalahan: ${response.statusText}`;
+            } catch (jsonError) {
+                // Respons bukan JSON, kemungkinan besar dari server proxy/pembatas
+                errorText = `Server mengembalikan respons yang tidak valid (status ${response.status}). Ini bisa terjadi jika file terlalu besar.`;
+            }
+
             if (response.status === 429) {
                 throw new Error("429 RESOURCE_EXHAUSTED");
             }
-            throw new Error(message);
+            throw new Error(errorText);
         }
 
         const imageData = await response.json();
@@ -411,6 +523,7 @@ const App = () => {
                                     <input ref={styleImageInputRef} type="file" accept="image/*" onChange={(e) => handleFileChange(e, setStyleImage, setStyleImagePreview)} style={{ display: 'none' }} />
                                 </div>
                             </div>
+                            <p className="optimization-notice">Untuk performa terbaik, gambar akan dioptimalkan (maks 1024px).</p>
                         </div>
                     ) : (
                         <div className="single-uploader-container">
@@ -421,6 +534,7 @@ const App = () => {
                                 </button>
                                 <input ref={mainImageInputRef} type="file" accept="image/*" onChange={(e) => handleFileChange(e, setMainImage, setMainImagePreview)} style={{ display: 'none' }} />
                             </div>
+                            <p className="optimization-notice">Untuk performa terbaik, gambar akan dioptimalkan (maks 1024px).</p>
                         </div>
                     )}
                 </div>
@@ -521,7 +635,7 @@ const App = () => {
                     {isLoading && (
                         <div className="loading-overlay">
                             <div className="spinner"></div>
-                            <p>AI sedang berpikir...</p>
+                            <p className="loading-message">{loadingMessage}</p>
                         </div>
                     )}
                     {generatedImage ? (

@@ -164,6 +164,13 @@ body {
   box-shadow: 0 0 15px var(--highlight-color);
 }
 
+.optimization-notice {
+    font-size: 0.75rem;
+    color: var(--secondary-text-color);
+    text-align: center;
+    margin-top: 12px;
+}
+
 /* --- Blend Mode Uploader Styles --- */
 .blend-uploader-container .helper-text {
     font-size: 0.85rem;
@@ -494,6 +501,8 @@ body {
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   z-index: 10;
+  padding: 20px;
+  text-align: center;
 }
 
 .spinner {
@@ -504,8 +513,16 @@ body {
   animation: spin 1s linear infinite;
   -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 6px), #000 0);
   mask: radial-gradient(farthest-side, transparent calc(100% - 6px), #000 0);
-  margin-bottom: 15px;
+  margin-bottom: 20px;
 }
+
+.loading-message {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--primary-text-color);
+    transition: opacity 0.5s ease-in-out;
+}
+
 
 @keyframes spin {
   0% { transform: rotate(0deg); }

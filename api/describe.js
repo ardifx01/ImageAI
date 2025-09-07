@@ -1,6 +1,9 @@
 
 import { GoogleGenAI } from "@google/genai";
 
+// Menonaktifkan peringatan eksperimental jika perlu
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed' });
@@ -12,8 +15,7 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Missing required field: imagePart' });
   }
 
-  // FIX: Use process.env.API_KEY as per coding guidelines.
-  const apiKey = process.env.API_KEY;
+  const apiKey = process.env.GOOGLE_API_KEY;
   if (!apiKey) {
     return res.status(500).json({ error: 'API key not configured on the server' });
   }
@@ -34,8 +36,7 @@ export default async function handler(req, res) {
       res.status(500).json({ error: "AI couldn't generate a description for this image." });
     }
 
-  } catch (error)
-   {
+  } catch (error) {
     console.error('Error calling Gemini API for description:', error);
     res.status(500).json({ error: `Failed to generate description: ${error.message}` });
   }

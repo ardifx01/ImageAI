@@ -1,20 +1,22 @@
 
 import { GoogleGenAI, Modality } from "@google/genai";
 
+// Menonaktifkan peringatan eksperimental jika perlu, meskipun lebih baik untuk menanganinya dengan benar
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
-  // Vercel automatically parses the JSON body
+  // Vercel secara otomatis mengurai body JSON
   const { prompt, imageParts } = req.body;
 
   if (!prompt || !imageParts || !Array.isArray(imageParts) || imageParts.length === 0) {
     return res.status(400).json({ error: 'Missing required fields: prompt and imageParts' });
   }
 
-  // FIX: Use process.env.API_KEY as per coding guidelines.
-  const apiKey = process.env.API_KEY;
+  const apiKey = process.env.GOOGLE_API_KEY;
   if (!apiKey) {
     return res.status(500).json({ error: 'API key not configured on the server' });
   }

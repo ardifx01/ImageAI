@@ -3,12 +3,16 @@ import React, { useState, useCallback, useRef } from 'react';
 import { createRoot } from 'react-dom/client';
 import { GoogleGenAI, Modality, Part } from "@google/genai";
 
-// --- Helper Functions ---
+// --- Inisialisasi Klien GenAI ---
+// Asumsikan process.env.API_KEY tersedia di lingkungan build sisi klien
+const ai = new GoogleGenAI({ apiKey: process.env.API_KEY! });
+
+// --- Fungsi Bantuan ---
 
 /**
- * Converts a file to a base64 string.
- * @param file The file to convert.
- * @returns A promise that resolves with the base64 string.
+ * Mengonversi file menjadi string base64.
+ * @param file File yang akan dikonversi.
+ * @returns Promise yang diselesaikan dengan string base64.
  */
 const fileToGenerativePart = async (file: File): Promise<Part> => {
   const base64EncodedDataPromise = new Promise<string>((resolve) => {
@@ -22,10 +26,10 @@ const fileToGenerativePart = async (file: File): Promise<Part> => {
 };
 
 /**
- * Calculates the aspect ratio of an image.
- * @param width The width of the image.
- * @param height The height of the image.
- * @returns A string representing the aspect ratio (e.g., "16:9").
+ * Menghitung rasio aspek gambar.
+ * @param width Lebar gambar.
+ * @param height Tinggi gambar.
+ * @returns String yang mewakili rasio aspek (misalnya, "16:9").
  */
 const getAspectRatio = (width: number, height: number): string => {
   const gcd = (a: number, b: number): number => (b === 0 ? a : gcd(b, a % b));
@@ -34,17 +38,17 @@ const getAspectRatio = (width: number, height: number): string => {
 };
 
 /**
- * Generates a formatted filename for downloads.
- * @param type 'original' or 'generated'.
- * @param styleName The current style (used for 'generated').
- * @param originalFileName The original filename (to get extension for 'original').
- * @param counter The current download count for the session.
- * @returns A formatted filename string.
+ * Menghasilkan nama file yang diformat untuk unduhan.
+ * @param type 'original' atau 'generated'.
+ * @param styleName Gaya saat ini (digunakan untuk 'generated').
+ * @param originalFileName Nama file asli (untuk mendapatkan ekstensi untuk 'original').
+ * @param counter Jumlah unduhan saat ini untuk sesi tersebut.
+ * @returns String nama file yang diformat.
  */
 const generateFilename = (type: 'original' | 'generated', styleName: string, originalFileName: string, counter: number): string => {
     const today = new Date();
     const day = String(today.getDate()).padStart(2, '0');
-    const month = String(today.getMonth() + 1).padStart(2, '0'); // Month is 0-indexed
+    const month = String(today.getMonth() + 1).padStart(2, '0'); // Bulan berbasis 0
     const year = today.getFullYear();
     const dateStr = `${day}${month}${year}`;
 
@@ -55,13 +59,13 @@ const generateFilename = (type: 'original' | 'generated', styleName: string, ori
         return `original_${dateStr}_${sequence}.${extension}`;
     } else {
         const sanitizedStyle = styleName.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
-        const finalStyle = sanitizedStyle || 'generated'; // Fallback if style is 'Default' or empty
+        const finalStyle = sanitizedStyle || 'generated'; // Fallback jika gaya adalah 'Default' atau kosong
         return `style_${finalStyle}_${dateStr}_${sequence}.png`;
     }
 };
 
 
-// --- SVG Icon Components ---
+// --- Komponen Ikon SVG ---
 
 const DownloadIcon = () => (
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -87,38 +91,23 @@ const DescribeIcon = () => (
     </svg>
 );
 
-// --- Style Definitions ---
+// --- Definisi Gaya ---
 const styles = [
     { name: 'Default', prompt: '{prompt}', singleUploader: true },
     { name: 'Kartun', prompt: 'Ubah gambar menjadi ilustrasi kartun yang ceria dengan garis-garis tebal dan warna-warna cerah. {prompt}', singleUploader: true },
     { name: 'Fantasi', prompt: 'Ubah gambar menjadi pemandangan fantasi epik, dengan elemen magis dan atmosfer seperti mimpi. {prompt}', singleUploader: true },
     { name: 'Fotorealistik', prompt: 'Tingkatkan gambar menjadi fotorealistik, pertajam detail, pencahayaan, dan tekstur. {prompt}', singleUploader: true },
-    { name: 'Ganti Latar', prompt: 'Ganti latar belakang gambar dengan {prompt}, jaga agar subjek utama tetap utuh.', singleUploader: true },
+    { name: 'Ganti Latar', prompt: 'Ganti latar belakang gambar dengan {prompt}, jaga agar subjek utama tetap utuh.', singleUploader: true, requiresPrompt: true },
     { name: 'Ganti Pakaian', prompt: 'Ganti seluruh pakaian subjek dengan {prompt}, pertahankan wajah dan latar belakangnya.', singleUploader: true, requiresPrompt: true },
     { name: 'Ganti Rambut', prompt: 'Ganti gaya rambut subjek menjadi {prompt}, pertahankan fitur wajah dan pakaian lainnya.', singleUploader: true, requiresPrompt: true },
+    { name: 'Model Aestetik', prompt: 'Ubah gambar ini menjadi pose model yang aestetik, fokus pada postur yang elegan, pencahayaan yang dramatis, dan komposisi yang artistik. {prompt}', singleUploader: true },
     { name: 'Campuran Gambar', prompt: 'Campurkan gambar utama dengan gambar gaya. {prompt}', singleUploader: false },
 ];
 
-// --- API Abstraction ---
-const callApi = async (endpoint: string, body: object) => {
-    const response = await fetch(`/api/${endpoint}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-    });
-
-    if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ error: 'Failed to parse error response' }));
-        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
-    }
-
-    return response.json();
-};
-
-// --- Main App Component ---
+// --- Komponen Aplikasi Utama ---
 
 const App = () => {
-  // State variables
+  // Variabel state
   const [prompt, setPrompt] = useState<string>('');
   const [mainImage, setMainImage] = useState<File | null>(null);
   const [styleImage, setStyleImage] = useState<File | null>(null);
@@ -132,12 +121,12 @@ const App = () => {
   const [styleImagePreview, setStyleImagePreview] = useState<string | null>(null);
   const [isDescribeLoading, setIsDescribeLoading] = useState<boolean>(false);
   
-  // Refs for file inputs
+  // Ref untuk input file
   const mainImageInputRef = useRef<HTMLInputElement>(null);
   const styleImageInputRef = useRef<HTMLInputElement>(null);
   const downloadCounter = useRef(1);
 
-  // --- Handlers ---
+  // --- Handler ---
 
   const handleFileChange = (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -158,36 +147,47 @@ const App = () => {
       };
       reader.readAsDataURL(file);
     }
-    // Clear the input value to allow re-uploading the same file
+    // Hapus nilai input untuk memungkinkan pengunggahan ulang file yang sama
     e.target.value = ''; 
   };
   
-  // FIX: Added 'requiresPrompt' to the style object type to fix the TypeScript error.
   const handleStyleClick = (style: { name: string, prompt: string, singleUploader: boolean, requiresPrompt?: boolean }) => {
     setActiveStyle(style.name);
-    // Only update prompt if the style doesn't require a custom user prompt
+    // Hanya perbarui prompt jika gaya tidak memerlukan prompt pengguna kustom
     if (!style.requiresPrompt) {
         const newPrompt = style.prompt.includes('{prompt}') ? '' : style.prompt;
         setPrompt(newPrompt);
     } else {
-        // If it requires a prompt, clear the text box for the user to type
+        // Jika memerlukan prompt, kosongkan kotak teks agar pengguna dapat mengetik
         setPrompt('');
     }
   };
 
   const handleDescribe = async () => {
     if (!mainImage) {
-        setError("Please upload an image first to describe.");
+        setError("Silakan unggah gambar terlebih dahulu untuk dideskripsikan.");
         return;
     }
     setIsDescribeLoading(true);
     setError('');
     try {
         const imagePart = await fileToGenerativePart(mainImage);
-        const result = await callApi('describe', { imagePart });
-        setPrompt(result.description);
+        const describePrompt = "Bertindak sebagai fotografer profesional. Jelaskan gambar ini dengan detail yang jelas, berfokus pada subjek utama, latar, pencahayaan, komposisi, warna, dan suasana keseluruhan. Deskripsi harus cocok untuk digunakan sebagai prompt untuk membuat ulang gambar serupa dengan generator gambar AI.";
+        
+        const response = await ai.models.generateContent({
+            model: 'gemini-2.5-flash',
+            contents: { parts: [imagePart, { text: describePrompt }] },
+        });
+
+        const description = response.text;
+        if (description) {
+          setPrompt(description);
+        } else {
+          setError("AI tidak dapat menghasilkan deskripsi untuk gambar ini.");
+        }
     } catch (e: any) {
-        setError(`Description failed: ${e.message}`);
+        console.error('Error in handleDescribe:', e);
+        setError(`Deskripsi gagal: ${e.message}`);
     } finally {
         setIsDescribeLoading(false);
     }
@@ -196,46 +196,89 @@ const App = () => {
   const generateImage = async () => {
     const currentStyle = styles.find(s => s.name === activeStyle) || styles[0];
     const isSingleUploader = currentStyle.singleUploader;
-  
-    // Validation
-    if (!prompt && currentStyle.prompt.includes("{prompt}")) {
-      setError('Please enter a prompt.');
-      return;
+
+    // Validasi
+    const isPromptRequired = currentStyle.requiresPrompt || currentStyle.prompt.trim() === '{prompt}';
+
+    if (!prompt && isPromptRequired) {
+        if (currentStyle.requiresPrompt) {
+            setError(`Silakan jelaskan apa yang ingin Anda ubah. Contoh untuk "${currentStyle.name}": "kemeja biru" atau "pantai saat senja".`);
+        } else {
+            setError('Silakan masukkan prompt untuk memandu AI.');
+        }
+        return;
     }
     if (isSingleUploader && !mainImage) {
-      setError('Please upload a main image.');
-      return;
+        setError('Silakan unggah gambar utama.');
+        return;
     }
     if (!isSingleUploader && (!mainImage || !styleImage)) {
-      setError('Please upload both a main image and a style image for this mode.');
-      return;
+        setError('Silakan unggah gambar utama dan gambar gaya untuk mode ini.');
+        return;
     }
-  
+
     setIsLoading(true);
     setGeneratedImage(null);
     setError('');
-  
-    try {
-      // Construct the final prompt
-      const finalPrompt = currentStyle.prompt.replace('{prompt}', prompt);
-  
-      // Prepare image parts
-      const imageParts: Part[] = [];
-      if (mainImage) imageParts.push(await fileToGenerativePart(mainImage));
-      if (!isSingleUploader && styleImage) imageParts.push(await fileToGenerativePart(styleImage));
-  
-      const result = await callApi('generate', { prompt: finalPrompt, imageParts });
 
-      if (result.base64) {
-        setGeneratedImage(`data:${result.mimeType};base64,${result.base64}`);
-      } else {
-        throw new Error('API did not return image data.');
-      }
+    try {
+        // Buat prompt akhir
+        const finalPrompt = currentStyle.prompt.replace('{prompt}', prompt);
+
+        // Siapkan bagian gambar
+        const imageParts: Part[] = [];
+        if (mainImage) imageParts.push(await fileToGenerativePart(mainImage));
+        if (!isSingleUploader && styleImage) imageParts.push(await fileToGenerativePart(styleImage));
+
+        // Panggilan API Langsung
+        const response = await ai.models.generateContent({
+          model: 'gemini-2.5-flash-image-preview',
+          contents: { parts: [...imageParts, { text: finalPrompt }] },
+          config: {
+            responseModalities: [Modality.IMAGE, Modality.TEXT],
+          },
+        });
+        
+        const candidate = response.candidates?.[0];
+
+        if (!candidate) {
+          throw new Error("Tidak ada respons dari API. Permintaan mungkin telah diblokir.");
+        }
+    
+        if (candidate.finishReason === 'SAFETY') {
+          throw new Error("Pembuatan gambar gagal. Prompt atau gambar mungkin melanggar kebijakan keamanan. Harap sesuaikan input Anda dan coba lagi.");
+        }
+
+        let imageData = null;
+        let responseText = '';
+
+        for (const part of candidate.content?.parts || []) {
+          if (part.inlineData) {
+            imageData = {
+              base64: part.inlineData.data,
+              mimeType: part.inlineData.mimeType,
+            };
+            break; 
+          } else if (part.text) {
+            responseText += part.text;
+          }
+        }
+
+        if (imageData) {
+            setGeneratedImage(`data:${imageData.mimeType};base64,${imageData.base64}`);
+        } else {
+          const errorMessage = responseText 
+            ? `API mengembalikan teks alih-alih gambar: "${responseText}"`
+            : "API tidak mengembalikan gambar. Mungkin telah diblokir karena pengaturan keamanan atau masalah prompt.";
+          throw new Error(errorMessage);
+        }
+
     } catch (e: any) {
-      setError(`Generation failed: ${e.message}`);
-      setGeneratedImage(null);
+        console.error('Error in generateImage:', e);
+        setError(`Pembuatan gagal: ${e.message}`);
+        setGeneratedImage(null);
     } finally {
-      setIsLoading(false);
+        setIsLoading(false);
     }
   };
 
@@ -263,7 +306,7 @@ const App = () => {
               const file = new File([blob], 'generated_image.png', { type: 'image/png' });
               setMainImage(file);
               setMainImagePreview(generatedImage);
-              // Optionally reset other fields
+              // Opsional: reset bidang lain
               setGeneratedImage(null);
           });
   };
@@ -287,32 +330,32 @@ const App = () => {
 
         <main className="main-content">
             <section className="hero">
-                <h2>Transform Your Ideas into Visual Reality</h2>
+                <h2>Ubah Ide Anda menjadi Realitas Visual</h2>
             </section>
             
             <div className="app-container">
                 <aside className="controls-panel panel">
-                <h2>Controls</h2>
+                <h2>Kontrol</h2>
 
-                {/* --- Image Upload Section --- */}
+                {/* --- Bagian Unggah Gambar --- */}
                 <div className="control-section">
-                    <h3>{isBlendMode ? 'Upload Images' : 'Upload Image'}</h3>
+                    <h3>{isBlendMode ? 'Unggah Gambar' : 'Unggah Gambar'}</h3>
                     {isBlendMode ? (
                         <div className="blend-uploader-container">
-                             <p className="helper-text">Select a main image and a style image to blend them together.</p>
+                             <p className="helper-text">Pilih gambar utama dan gambar gaya untuk memadukannya.</p>
                              <div className="blend-inputs">
                                 <div className="upload-box" onClick={() => mainImageInputRef.current?.click()}>
                                     <div className="upload-box-content">
-                                        {mainImagePreview ? <img src={mainImagePreview} alt="Main Preview" className="upload-box-thumbnail"/> : <span className="upload-box-plus">+</span>}
+                                        {mainImagePreview ? <img src={mainImagePreview} alt="Pratinjau Utama" className="upload-box-thumbnail"/> : <span className="upload-box-plus">+</span>}
                                     </div>
-                                    <p className="upload-box-label">Main Image</p>
+                                    <p className="upload-box-label">Gambar Utama</p>
                                     <input ref={mainImageInputRef} type="file" accept="image/*" onChange={(e) => handleFileChange(e, setMainImage, setMainImagePreview)} style={{ display: 'none' }} />
                                 </div>
                                 <div className="upload-box" onClick={() => styleImageInputRef.current?.click()}>
                                     <div className="upload-box-content">
-                                        {styleImagePreview ? <img src={styleImagePreview} alt="Style Preview" className="upload-box-thumbnail"/> : <span className="upload-box-plus">+</span>}
+                                        {styleImagePreview ? <img src={styleImagePreview} alt="Pratinjau Gaya" className="upload-box-thumbnail"/> : <span className="upload-box-plus">+</span>}
                                     </div>
-                                    <p className="upload-box-label">Style Image</p>
+                                    <p className="upload-box-label">Gambar Gaya</p>
                                     <input ref={styleImageInputRef} type="file" accept="image/*" onChange={(e) => handleFileChange(e, setStyleImage, setStyleImagePreview)} style={{ display: 'none' }} />
                                 </div>
                             </div>
@@ -320,9 +363,9 @@ const App = () => {
                     ) : (
                         <div className="single-uploader-container">
                             <div className="upload-main-container">
-                                {mainImagePreview && <img id="main-image-thumbnail" src={mainImagePreview} alt="Main preview" />}
+                                {mainImagePreview && <img id="main-image-thumbnail" src={mainImagePreview} alt="Pratinjau utama" />}
                                 <button className="upload-btn" onClick={() => mainImageInputRef.current?.click()}>
-                                    {mainImage ? 'Change Image' : 'Choose Image'}
+                                    {mainImage ? 'Ubah Gambar' : 'Pilih Gambar'}
                                 </button>
                                 <input ref={mainImageInputRef} type="file" accept="image/*" onChange={(e) => handleFileChange(e, setMainImage, setMainImagePreview)} style={{ display: 'none' }} />
                             </div>
@@ -330,9 +373,9 @@ const App = () => {
                     )}
                 </div>
 
-                {/* --- Style Selection --- */}
+                {/* --- Pilihan Gaya --- */}
                 <div className="control-section">
-                    <h3>Style</h3>
+                    <h3>Gaya</h3>
                     <div className="style-selector">
                     {styles.map(style => (
                         <button
@@ -346,7 +389,7 @@ const App = () => {
                     </div>
                 </div>
 
-                {/* --- Prompt Input --- */}
+                {/* --- Input Prompt --- */}
                 <div className="control-section">
                     <h3>Prompt</h3>
                     <div className="prompt-container">
@@ -356,8 +399,8 @@ const App = () => {
                         onChange={(e) => setPrompt(e.target.value)}
                         placeholder={
                             currentStyle.requiresPrompt 
-                                ? `e.g., a futuristic cyberpunk city` 
-                                : `Describe your vision...`
+                                ? `misalnya, kota cyberpunk futuristik` 
+                                : `Jelaskan visi Anda...`
                         }
                         rows={4}
                     />
@@ -365,20 +408,20 @@ const App = () => {
                         className="ai-describe-button" 
                         onClick={handleDescribe}
                         disabled={isDescribeLoading || !mainImage}
-                        aria-label="Generate description from image"
+                        aria-label="Hasilkan deskripsi dari gambar"
                      >
                         {isDescribeLoading ? <span className="spinner-small"></span> : <DescribeIcon />}
-                        AI Describe
+                        Deskripsi AI
                     </button>
                     </div>
                 </div>
 
-                {/* --- Options --- */}
+                {/* --- Opsi --- */}
                 <div className="control-section">
-                     <h3>Options</h3>
+                     <h3>Opsi</h3>
                      <div className="options-container">
                         <div className="option-item">
-                            <label htmlFor="aspect-ratio">Aspect Ratio</label>
+                            <label htmlFor="aspect-ratio">Rasio Aspek</label>
                             <select 
                                 id="aspect-ratio" 
                                 className="aspect-ratio-select"
@@ -386,11 +429,11 @@ const App = () => {
                                 onChange={(e) => setAspectRatio(e.target.value)}
                                 disabled={isAspectRatioLocked}
                             >
-                                <option value="1:1">1:1 (Square)</option>
-                                <option value="16:9">16:9 (Widescreen)</option>
-                                <option value="9:16">9:16 (Vertical)</option>
-                                <option value="4:3">4:3 (Standard)</option>
-                                <option value="3:4">3:4 (Portrait)</option>
+                                <option value="1:1">1:1 (Persegi)</option>
+                                <option value="16:9">16:9 (Layar Lebar)</option>
+                                <option value="9:16">9:16 (Vertikal)</option>
+                                <option value="4:3">4:3 (Standar)</option>
+                                <option value="3:4">3:4 (Potret)</option>
                             </select>
                         </div>
                         <div className="checkbox-group">
@@ -401,7 +444,7 @@ const App = () => {
                                     checked={isAspectRatioLocked}
                                     onChange={(e) => setIsAspectRatioLocked(e.target.checked)}
                                 />
-                                <label htmlFor="lock-aspect-ratio">Lock Aspect Ratio</label>
+                                <label htmlFor="lock-aspect-ratio">Kunci Rasio Aspek</label>
                             </div>
                         </div>
                      </div>
@@ -412,7 +455,7 @@ const App = () => {
                     onClick={generateImage}
                     disabled={isLoading}
                 >
-                    {isLoading ? 'Transforming...' : 'Transform'}
+                    {isLoading ? 'Mengubah...' : 'Ubah'}
                 </button>
 
                 {error && <p className="error-message">{error}</p>}
@@ -420,45 +463,45 @@ const App = () => {
                 
                 <div className="image-panel">
                 <div className="panel" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-                    <h3>Generated Image</h3>
+                    <h3>Gambar yang Dihasilkan</h3>
                     <div className="image-placeholder">
                     {isLoading && (
                         <div className="loading-overlay">
                             <div className="spinner"></div>
-                            <p>AI is thinking...</p>
+                            <p>AI sedang berpikir...</p>
                         </div>
                     )}
                     {generatedImage ? (
                         <>
-                            <img src={generatedImage} alt="Generated" />
+                            <img src={generatedImage} alt="Dihasilkan" />
                             <div className="image-toolbar">
-                                <button className="toolbar-button" onClick={() => handleDownload(generatedImage, 'generated')} aria-label="Download generated image">
+                                <button className="toolbar-button" onClick={() => handleDownload(generatedImage, 'generated')} aria-label="Unduh gambar yang dihasilkan">
                                     <DownloadIcon />
                                 </button>
                                 <div className="toolbar-divider"></div>
-                                <button className="toolbar-button" onClick={handleUseAsInput} aria-label="Use as input">
+                                <button className="toolbar-button" onClick={handleUseAsInput} aria-label="Gunakan sebagai input">
                                     <UseAsInputIcon />
                                 </button>
                                 <div className="toolbar-divider"></div>
-                                 <button className="toolbar-button" onClick={copyPromptToClipboard} aria-label="Copy prompt">
+                                 <button className="toolbar-button" onClick={copyPromptToClipboard} aria-label="Salin prompt">
                                     <CopyIcon />
                                 </button>
                             </div>
                         </>
                     ) : (
                         <div className="upload-prompt">
-                            <p>Your generated image will appear here.</p>
+                            <p>Gambar yang Anda hasilkan akan muncul di sini.</p>
                         </div>
                     )}
                     </div>
                 </div>
                 {mainImagePreview && (
                     <div className="panel" style={{ marginTop: '20px' }}>
-                        <h3>Original Image</h3>
+                        <h3>Gambar Asli</h3>
                         <div className="image-placeholder">
-                            <img src={mainImagePreview} alt="Original" />
+                            <img src={mainImagePreview} alt="Asli" />
                              <div className="image-toolbar-single">
-                                <button className="toolbar-button" onClick={() => handleDownload(mainImagePreview, 'original')} aria-label="Download original image">
+                                <button className="toolbar-button" onClick={() => handleDownload(mainImagePreview, 'original')} aria-label="Unduh gambar asli">
                                     <DownloadIcon />
                                 </button>
                             </div>
@@ -469,7 +512,7 @@ const App = () => {
             </div>
         </main>
         <footer className="footer">
-            <p>Powered by Gemini AI. Created by IT PALUGADA.</p>
+            <p>Didukung oleh Gemini AI. Dibuat oleh IT PALUGADA.</p>
         </footer>
     </>
   );

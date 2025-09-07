@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback, useRef } from 'react';
 import { createRoot } from 'react-dom/client';
 import { GoogleGenAI, Modality, Part } from "@google/genai";
@@ -127,38 +128,6 @@ const AIDescribeIcon = () => (
 
 // --- React Components ---
 
-const ApiKeyModal = ({ onSave, initialKey }: { onSave: (key: string) => void, initialKey: string }) => {
-    const [localApiKey, setLocalApiKey] = useState(initialKey || '');
-
-    const handleSave = () => {
-        if (localApiKey.trim()) {
-            onSave(localApiKey.trim());
-        }
-    };
-
-    return (
-        <div className="api-key-modal-overlay">
-            <div className="api-key-modal">
-                <h3>Enter Your Google AI API Key</h3>
-                <p>
-                    To use this app, you need a Google AI API key. You can get your key from{' '}
-                    <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer">
-                        Google AI Studio
-                    </a>.
-                </p>
-                <input
-                    type="password"
-                    value={localApiKey}
-                    onChange={(e) => setLocalApiKey(e.target.value)}
-                    placeholder="Paste your API key here"
-                    className="api-key-input"
-                />
-                <button onClick={handleSave} className="api-key-save-button">Save & Continue</button>
-            </div>
-        </div>
-    );
-};
-
 const Navbar = () => (
     <nav className="navbar">
         <div className="navbar-container">
@@ -265,8 +234,6 @@ const ImagePlaceholder: React.FC<ImagePlaceholderProps> = ({ image, isLoading, o
 };
 
 const App = () => {
-    const [apiKey, setApiKey] = useState('');
-    const [showApiKeyModal, setShowApiKeyModal] = useState(true);
     const [uploadedImage, setUploadedImage] = useState<{ url: string; file: File | null; aspectRatio: string }>({ url: '', file: null, aspectRatio: 'Original' });
     const [uploadedBgImage, setUploadedBgImage] = useState<{ url: string; file: File | null }>({ url: '', file: null });
     const [clothingImage, setClothingImage] = useState<{ url: string; file: File | null }>({ url: '', file: null });
@@ -425,63 +392,31 @@ const App = () => {
     };
     
     const callGeminiApi = useCallback(async (currentPrompt: string, imageParts: Part[]) => {
-        if (!apiKey) {
-            setError('Please set your Google AI API Key first.');
-            setShowApiKeyModal(true);
-            return;
-        }
         setIsLoading(true);
         setError('');
         setGeneratedImage({ url: '', file: null });
 
         try {
-            const ai = new GoogleGenAI({ apiKey: apiKey });
-            const response = await ai.models.generateContent({
-                model: 'gemini-2.5-flash-image-preview',
-                contents: { parts: [...imageParts, { text: currentPrompt }] },
-                config: {
-                    responseModalities: [Modality.IMAGE, Modality.TEXT],
-                },
+            const response = await fetch('/api/generate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prompt: currentPrompt, imageParts }),
             });
 
-            const candidate = response.candidates?.[0];
+            const result = await response.json();
 
-            if (!candidate) {
-                throw new Error("No response from the API. The request might have been blocked.");
+            if (!response.ok) {
+                throw new Error(result.error || 'An unknown error occurred from the backend.');
             }
             
-            if (candidate.finishReason === 'SAFETY') {
-                 throw new Error("Image generation failed. The prompt or image may have violated safety policies. Please adjust your input and try again.");
-            }
+            const { base64, mimeType } = result;
+            const imageUrl = `data:${mimeType};base64,${base64}`;
+            
+            const res = await fetch(imageUrl);
+            const blob = await res.blob();
+            const file = new File([blob], "generated_image.png", { type: mimeType });
 
-            let processedImage = false;
-            let responseText = '';
-
-            for (const part of candidate.content?.parts || []) {
-                if (part.inlineData) {
-                    const base64Data = part.inlineData.data;
-                    const mimeType = part.inlineData.mimeType;
-                    const imageUrl = `data:${mimeType};base64,${base64Data}`;
-                    
-                    const res = await fetch(imageUrl);
-                    const blob = await res.blob();
-                    const file = new File([blob], "generated_image.png", { type: mimeType });
-
-                    setGeneratedImage({ url: imageUrl, file });
-                    processedImage = true;
-                    break; 
-                } else if (part.text) {
-                    responseText += part.text;
-                }
-            }
-
-            if (!processedImage) {
-                if (responseText) {
-                     throw new Error(`API returned text instead of an image: "${responseText}"`);
-                } else {
-                     throw new Error("API did not return an image. It might have been blocked due to safety settings or a prompt issue. Please try a different prompt.");
-                }
-            }
+            setGeneratedImage({ url: imageUrl, file });
 
         } catch (e) {
             const errorMessage = e instanceof Error ? e.message : 'An unknown error occurred.';
@@ -490,7 +425,7 @@ const App = () => {
         } finally {
             setIsLoading(false);
         }
-    }, [apiKey]);
+    }, []);
 
     const handleTransform = async () => {
         if (!uploadedImage.file) {
@@ -555,24 +490,24 @@ const App = () => {
             setError('Please upload an image to describe.');
             return;
         }
-        if (!apiKey) {
-            setError('Please set your Google AI API Key first.');
-            setShowApiKeyModal(true);
-            return;
-        }
+       
         setIsDescribing(true);
         setError('');
         try {
             const imagePart = await fileToGenerativePart(uploadedImage.file);
-            const describePrompt = "Act as a professional photographer. Describe this image in vivid detail, focusing on the main subject, setting, lighting, composition, colors, and overall mood. The description should be suitable to be used as a prompt to recreate a similar image with an AI image generator.";
-
-            const ai = new GoogleGenAI({ apiKey: apiKey });
-            const response = await ai.models.generateContent({
-                model: 'gemini-2.5-flash',
-                contents: { parts: [imagePart, { text: describePrompt }] },
+            
+            const response = await fetch('/api/describe', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ imagePart }),
             });
 
-            const description = response.text;
+            const result = await response.json();
+             if (!response.ok) {
+                throw new Error(result.error || 'An unknown error occurred from the backend.');
+            }
+
+            const description = result.description;
             if (description) {
                 setPrompt(description);
             } else {
@@ -732,7 +667,6 @@ const App = () => {
 
     return (
         <>
-            {showApiKeyModal && <ApiKeyModal onSave={(key) => { setApiKey(key); setShowApiKeyModal(false); setError(''); }} initialKey={apiKey} />}
             <Navbar />
             <main className="main-content">
                 <Hero />
@@ -808,7 +742,7 @@ const App = () => {
                                 <button 
                                     className="ai-describe-button" 
                                     onClick={handleAIDescribe} 
-                                    disabled={!uploadedImage.file || isDescribing || isLoading || !apiKey}
+                                    disabled={!uploadedImage.file || isDescribing || isLoading}
                                     title="Generate a prompt from the original image"
                                 >
                                     <AIDescribeIcon />
@@ -854,13 +788,10 @@ const App = () => {
                             </div>
                         </div>
 
-                        <button className="transform-button" onClick={handleTransform} disabled={isLoading || isDescribing || !uploadedImage.file || !apiKey}>
+                        <button className="transform-button" onClick={handleTransform} disabled={isLoading || isDescribing || !uploadedImage.file}>
                             {isLoading ? 'Generating...' : 'Transform Image'}
                         </button>
                         {error && <p className="error-message">{error}</p>}
-                        <button className="change-api-key-button" onClick={() => setShowApiKeyModal(true)}>
-                            Change API Key
-                        </button>
                     </div>
 
                     <div className="panel image-panel">

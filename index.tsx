@@ -113,14 +113,17 @@ const DescribeIcon = () => (
 // --- Definisi Gaya ---
 const styles = [
     { name: 'Default', prompt: '{prompt}', singleUploader: true },
-    { name: 'Kartun', prompt: 'Ubah gambar menjadi ilustrasi kartun yang ceria dengan garis-garis tebal dan warna-warna cerah. {prompt}', singleUploader: true },
-    { name: 'Fantasi', prompt: 'Ubah gambar menjadi pemandangan fantasi epik, dengan elemen magis dan atmosfer seperti mimpi. {prompt}', singleUploader: true },
-    { name: 'Fotorealistik', prompt: 'Tingkatkan gambar menjadi fotorealistik, pertajam detail, pencahayaan, dan tekstur. {prompt}', singleUploader: true },
-    { name: 'Ganti Latar', prompt: 'Ganti latar belakang gambar dengan {prompt}, jaga agar subjek utama tetap utuh.', singleUploader: true, requiresPrompt: true },
-    { name: 'Ganti Pakaian', prompt: 'Ganti seluruh pakaian subjek dengan {prompt}, pertahankan wajah dan latar belakangnya.', singleUploader: true, requiresPrompt: true },
-    { name: 'Ganti Rambut', prompt: 'Ganti gaya rambut subjek menjadi {prompt}, pertahankan fitur wajah dan pakaian lainnya.', singleUploader: true, requiresPrompt: true },
-    { name: 'Model Aestetik', prompt: 'Ubah gambar ini menjadi pose model yang aestetik, fokus pada postur yang elegan, pencahayaan yang dramatis, dan komposisi yang artistik. {prompt}', singleUploader: true },
-    { name: 'Campuran Gambar', prompt: 'Campurkan gambar utama dengan gambar gaya. {prompt}', singleUploader: false },
+    { name: 'Kartun', prompt: 'Gaya kartun: ilustrasi ceria, garis tebal, warna-warna cerah. {prompt}', singleUploader: true },
+    { name: 'Fantasi', prompt: 'Gaya fantasi: pemandangan epik, elemen magis, atmosfer seperti mimpi. {prompt}', singleUploader: true },
+    { name: 'Fotorealistik', prompt: 'Gaya fotorealistik: detail tajam, pencahayaan dan tekstur yang disempurnakan. {prompt}', singleUploader: true },
+    { name: 'Ganti Latar', prompt: 'Subjek utama dengan latar belakang baru: {prompt}', singleUploader: true, requiresPrompt: true },
+    { name: 'Ganti Pakaian', prompt: 'Subjek mengenakan pakaian yang berbeda: {prompt}', singleUploader: true, requiresPrompt: true },
+    { name: 'Ganti Rambut', prompt: 'Subjek dengan gaya rambut baru: {prompt}', singleUploader: true, requiresPrompt: true },
+    { name: 'Model Aestetik', prompt: 'Gaya model estetis: postur elegan, pencahayaan dramatis, komposisi artistik. {prompt}', singleUploader: true },
+    { name: 'Monochrome for Man', prompt: 'Foto monokrom profil samping seorang pria, cahaya menyoroti tepi rambut dan wajah, latar belakang gelap, menonjolkan siluet. {prompt}', singleUploader: true },
+    { name: 'Monochrome for woman', prompt: 'Foto monokrom profil samping seorang wanita, cahaya menyoroti tepi rambut dan wajah, latar belakang gelap, menonjolkan siluet. {prompt}', singleUploader: true },
+    { name: 'Campuran Gambar', prompt: 'Perpaduan artistik dari dua gambar. {prompt}', singleUploader: false },
+    { name: 'Pakaian dari Gambar', prompt: 'Kenakan pakaian dari gambar kedua pada orang di gambar pertama. Pertahankan pose, wajah, dan latar belakang orang tersebut, tetapi ganti pakaian mereka. {prompt}', singleUploader: false },
 ];
 
 // --- Komponen Aplikasi Utama ---
@@ -287,7 +290,7 @@ const App = () => {
             setGeneratedImage(`data:${imageData.mimeType};base64,${imageData.base64}`);
         } else {
           const errorMessage = responseText 
-            ? `API mengembalikan teks alih-alih gambar: "${responseText}"`
+            ? `API mengembalikan teks alih-alih gambar: "${responseText.trim()}"`
             : "API tidak mengembalikan gambar. Mungkin telah diblokir karena pengaturan keamanan atau masalah prompt.";
           throw new Error(errorMessage);
         }
@@ -339,6 +342,17 @@ const App = () => {
   const currentStyle = styles.find(s => s.name === activeStyle) || styles[0];
   const isBlendMode = !currentStyle.singleUploader;
 
+  // Label dinamis untuk mode dua pengunggah
+  let mainUploaderLabel = 'Gambar Utama';
+  let styleUploaderLabel = 'Gambar Gaya';
+  let blendHelperText = 'Pilih gambar utama dan gambar gaya untuk memadukannya.';
+
+  if (activeStyle === 'Pakaian dari Gambar') {
+    mainUploaderLabel = 'Orang';
+    styleUploaderLabel = 'Pakaian';
+    blendHelperText = 'Unggah foto orang dan gambar pakaian yang ingin Anda kenakan.';
+  }
+
   return (
     <>
         <header className="navbar">
@@ -361,20 +375,20 @@ const App = () => {
                     <h3>{isBlendMode ? 'Unggah Gambar' : 'Unggah Gambar'}</h3>
                     {isBlendMode ? (
                         <div className="blend-uploader-container">
-                             <p className="helper-text">Pilih gambar utama dan gambar gaya untuk memadukannya.</p>
+                             <p className="helper-text">{blendHelperText}</p>
                              <div className="blend-inputs">
                                 <div className="upload-box" onClick={() => mainImageInputRef.current?.click()}>
                                     <div className="upload-box-content">
                                         {mainImagePreview ? <img src={mainImagePreview} alt="Pratinjau Utama" className="upload-box-thumbnail"/> : <span className="upload-box-plus">+</span>}
                                     </div>
-                                    <p className="upload-box-label">Gambar Utama</p>
+                                    <p className="upload-box-label">{mainUploaderLabel}</p>
                                     <input ref={mainImageInputRef} type="file" accept="image/*" onChange={(e) => handleFileChange(e, setMainImage, setMainImagePreview)} style={{ display: 'none' }} />
                                 </div>
                                 <div className="upload-box" onClick={() => styleImageInputRef.current?.click()}>
                                     <div className="upload-box-content">
                                         {styleImagePreview ? <img src={styleImagePreview} alt="Pratinjau Gaya" className="upload-box-thumbnail"/> : <span className="upload-box-plus">+</span>}
                                     </div>
-                                    <p className="upload-box-label">Gambar Gaya</p>
+                                    <p className="upload-box-label">{styleUploaderLabel}</p>
                                     <input ref={styleImageInputRef} type="file" accept="image/*" onChange={(e) => handleFileChange(e, setStyleImage, setStyleImagePreview)} style={{ display: 'none' }} />
                                 </div>
                             </div>

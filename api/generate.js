@@ -4,22 +4,39 @@ import { GoogleGenAI, Modality } from "@google/genai";
 // Menonaktifkan peringatan eksperimental jika perlu, meskipun lebih baik untuk menanganinya dengan benar
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
+/**
+ * Memilih kunci API dari pool atau kembali ke kunci tunggal.
+ * @returns {string|null} Kunci API yang dipilih atau null jika tidak ada yang dikonfigurasi.
+ */
+function getApiKey() {
+  const apiKeysPool = process.env.API_KEYS_POOL;
+  const singleApiKey = process.env.API_KEY;
+
+  if (apiKeysPool) {
+    const keys = apiKeysPool.split(',').map(k => k.trim()).filter(Boolean);
+    if (keys.length > 0) {
+      // Pilih kunci acak dari pool
+      return keys[Math.floor(Math.random() * keys.length)];
+    }
+  }
+
+  return singleApiKey || null;
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
-  // Vercel secara otomatis mengurai body JSON
   const { prompt, imageParts } = req.body;
 
   if (!prompt || !imageParts || !Array.isArray(imageParts) || imageParts.length === 0) {
     return res.status(400).json({ error: 'Missing required fields: prompt and imageParts' });
   }
 
-  // FIX: API key must be read from process.env.API_KEY
-  const apiKey = process.env.API_KEY;
+  const apiKey = getApiKey();
   if (!apiKey) {
-    return res.status(500).json({ error: 'API key not configured on the server' });
+    return res.status(500).json({ error: 'API key not configured on the server. Please set API_KEY or API_KEYS_POOL environment variables.' });
   }
 
   try {

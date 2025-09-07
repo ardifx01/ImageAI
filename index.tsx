@@ -1,17 +1,14 @@
+
 import React, { useState, useCallback, useRef } from 'react';
 import { createRoot } from 'react-dom/client';
-import { GoogleGenAI, Modality, Part } from "@google/genai";
-
-// --- Inisialisasi Klien GenAI ---
-// Asumsikan process.env.API_KEY tersedia di lingkungan build sisi klien
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY! });
+import type { Part } from "@google/genai"; // Hanya menggunakan tipe, bukan seluruh library
 
 // --- Fungsi Bantuan ---
 
 /**
- * Mengonversi file menjadi string base64.
+ * Mengonversi file menjadi objek yang dapat dikirim ke backend.
  * @param file File yang akan dikonversi.
- * @returns Promise yang diselesaikan dengan string base64.
+ * @returns Promise yang diselesaikan dengan objek yang berisi data base64 dan tipe mime.
  */
 const fileToGenerativePart = async (file: File): Promise<Part> => {
   const base64EncodedDataPromise = new Promise<string>((resolve) => {
@@ -196,19 +193,25 @@ const App = () => {
     setError('');
     try {
         const imagePart = await fileToGenerativePart(mainImage);
-        const describePrompt = "Bertindak sebagai fotografer profesional. Jelaskan gambar ini dengan detail yang jelas, berfokus pada subjek utama, latar, pencahayaan, komposisi, warna, dan suasana keseluruhan. Deskripsi harus cocok untuk digunakan sebagai prompt untuk membuat ulang gambar serupa dengan generator gambar AI.";
         
-        const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
-            contents: { parts: [imagePart, { text: describePrompt }] },
+        const response = await fetch('/api/describe', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ imagePart }),
         });
 
-        const description = response.text;
-        if (description) {
-          setPrompt(description);
+        if (!response.ok) {
+            const err = await response.json();
+            throw new Error(err.error || 'Gagal mendeskripsikan gambar.');
+        }
+
+        const data = await response.json();
+        if (data.description) {
+          setPrompt(data.description);
         } else {
           setError("AI tidak dapat menghasilkan deskripsi untuk gambar ini.");
         }
+
     } catch (e: any) {
         console.error('Error in handleDescribe:', e);
         setError(`Deskripsi gagal: ${e.message}`);
@@ -254,47 +257,24 @@ const App = () => {
         if (mainImage) imageParts.push(await fileToGenerativePart(mainImage));
         if (!isSingleUploader && styleImage) imageParts.push(await fileToGenerativePart(styleImage));
 
-        // Panggilan API Langsung
-        const response = await ai.models.generateContent({
-          model: 'gemini-2.5-flash-image-preview',
-          contents: { parts: [...imageParts, { text: finalPrompt }] },
-          config: {
-            responseModalities: [Modality.IMAGE, Modality.TEXT],
-          },
+        // Panggilan API ke backend
+        const response = await fetch('/api/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ prompt: finalPrompt, imageParts }),
         });
-        
-        const candidate = response.candidates?.[0];
 
-        if (!candidate) {
-          throw new Error("Tidak ada respons dari API. Permintaan mungkin telah diblokir.");
-        }
-    
-        if (candidate.finishReason === 'SAFETY') {
-          throw new Error("Pembuatan gambar gagal. Prompt atau gambar mungkin melanggar kebijakan keamanan. Harap sesuaikan input Anda dan coba lagi.");
+        if (!response.ok) {
+            const err = await response.json();
+            throw new Error(err.error || `Terjadi kesalahan: ${response.statusText}`);
         }
 
-        let imageData = null;
-        let responseText = '';
+        const imageData = await response.json();
 
-        for (const part of candidate.content?.parts || []) {
-          if (part.inlineData) {
-            imageData = {
-              base64: part.inlineData.data,
-              mimeType: part.inlineData.mimeType,
-            };
-            break; 
-          } else if (part.text) {
-            responseText += part.text;
-          }
-        }
-
-        if (imageData) {
+        if (imageData && imageData.base64) {
             setGeneratedImage(`data:${imageData.mimeType};base64,${imageData.base64}`);
         } else {
-          const errorMessage = responseText 
-            ? `API mengembalikan teks alih-alih gambar: "${responseText.trim()}"`
-            : "API tidak mengembalikan gambar. Mungkin telah diblokir karena pengaturan keamanan atau masalah prompt.";
-          throw new Error(errorMessage);
+            throw new Error("Respons API tidak valid dari server.");
         }
 
     } catch (e: any) {

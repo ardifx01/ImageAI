@@ -488,7 +488,7 @@ const App = () => {
     <>
         <header className="navbar">
             <div className="navbar-container">
-                <h1>AI Image Transformer</h1>
+                <h1>ImageAI IT PALUGADA</h1>
             </div>
         </header>
 

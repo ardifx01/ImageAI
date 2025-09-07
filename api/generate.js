@@ -48,11 +48,16 @@ export default async function handler(req, res) {
       ? 'gemini-2.5-flash' // Model serbaguna untuk multi-gambar
       : 'gemini-2.5-flash-image-preview'; // Model yang dioptimalkan untuk pengeditan satu gambar
 
-    // Konfigurasi ini PENTING untuk kedua model untuk memastikan output gambar.
-    // Ini secara eksplisit memberitahu AI untuk menghasilkan gambar (dan teks).
+    // Mulai dengan konfigurasi dasar yang memaksa output gambar
     const modelConfig = {
       responseModalities: [Modality.IMAGE, Modality.TEXT],
     };
+
+    // **Optimisasi Kecepatan**: Jika ini adalah permintaan multi-gambar yang kompleks,
+    // nonaktifkan "thinking budget" untuk mendapatkan respons lebih cepat.
+    if (isMultiImageRequest) {
+        modelConfig.thinkingConfig = { thinkingBudget: 0 };
+    }
     // ------------------------------------
 
     const ai = new GoogleGenAI({ apiKey });

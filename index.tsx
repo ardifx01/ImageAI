@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import type { Part } from "@google/genai"; // Hanya menggunakan tipe, bukan seluruh library
@@ -45,7 +46,7 @@ const resizeImage = (file: File, maxDimension: number): Promise<File> => {
           } else {
             reject(new Error('Gagal membuat blob dari kanvas.'));
           }
-        }, file.type, 0.95); // Kualitas 95%
+        }, file.type, 0.9); // Kualitas 90% untuk unggahan yang lebih cepat
       };
       img.onerror = reject;
     };

@@ -219,6 +219,7 @@ const styles = [
     { name: 'Jadi Kurus', prompt: 'Critically important: Do not change the person\'s face or identity at all. The final result must be 100% identical to the original person\'s face. Modify the body of the person in the photo to appear noticeably slimmer, as if they have lost weight. Keep the background and clothing style similar. {prompt}', singleUploader: true, placeholder: 'Tambahkan detail, mis: wajah terlihat lebih tirus, pinggang lebih ramping.' },
     { name: 'Badan Ideal & Sexy', prompt: 'Critically important: Do not change the person\\\'s face or identity at all. The final result must be 100% identical to the original person\\\'s face. Modify the body of the person in the photo to have an ideal, sexy, and athletic physique. Enhance muscle tone and definition for a fit appearance. Keep the background and clothing style similar, adapting the fit to the new body shape. {prompt}', singleUploader: true, placeholder: 'Tambahkan detail, mis: perut six-pack, otot lengan kencang.' },
     { name: 'Model Aestetik', prompt: 'Gaya model estetis: postur elegan, pencahayaan dramatis, komposisi artistik. {prompt}', singleUploader: true },
+    { name: 'Jadi Aestetik', prompt: 'Transform this photo into an aesthetic masterpiece. Apply soft, dreamy lighting, a pleasing and harmonious color palette, and improve the composition. Enhance the overall mood to be visually captivating while keeping the original subject and context intact. {prompt}', singleUploader: true, placeholder: 'Tambahkan detail, mis: nuansa senja, palet warna pastel...' },
     { name: 'Monochrome for Man', prompt: 'Foto monokrom profil samping seorang pria, cahaya menyoroti tepi rambut dan wajah, latar belakang gelap, menonjolkan siluet. {prompt}', singleUploader: true },
     { name: 'Monochrome for woman', prompt: 'Foto monokrom profil samping seorang wanita, cahaya menyoroti tepi rambut dan wajah, latar belakang gelap, menonjolkan siluet. {prompt}', singleUploader: true },
     { name: 'Cinematic Portrait in Train (Man)', prompt: 'A cinematic portrait of a young man sitting by a train window at night, wearing a dark hoodie. Neon city lights reflect on the glass, creating colorful bokeh in shades of orange, pink, and blue. His face is softly illuminated by the glow. High detail, filmic lighting, cyberpunk atmosphere, shallow depth of field. {prompt}', singleUploader: true, placeholder: 'Tambahkan detail kecil jika diinginkan...' },
@@ -246,6 +247,7 @@ const styles = [
     { name: 'Ghibli Style', prompt: 'Transform this into the beautiful, hand-painted art style of a Studio Ghibli film. Emphasize lush natural landscapes, soft lighting, vibrant colors, and a whimsical, nostalgic atmosphere. {prompt}', singleUploader: true, placeholder: 'Tambahkan detail kecil jika diinginkan...' },
     { name: 'Pixar Style', prompt: 'Transform the subject into a friendly 3D character in the style of a Pixar movie. The character should have a proportionally larger head, wide expressive eyes, and a warm smile, based on the person in the photo. The scene should be brightly lit with a clean background inspired by the original photo. {prompt}', singleUploader: true, placeholder: 'Tambahkan detail kecil jika diinginkan...' },
     { name: 'Karikatur 4D', prompt: 'Gaya karikatur 4D: buat karikatur dari foto dengan fitur wajah yang dilebih-lebihkan secara artistik, efek 3D yang kuat, pencahayaan dinamis, dan warna-warna cerah. Latar belakang sederhana untuk menonjolkan karakter. {prompt}', singleUploader: true, placeholder: 'Tambahkan detail, mis: dengan tema superhero, memegang gitar...' },
+    { name: 'Frame di Meja', prompt: 'Tempatkan foto yang diunggah ke dalam bingkai foto yang diletakkan di atas meja yang estetis. Ciptakan suasana yang menarik dengan pencahayaan lembut dan elemen dekoratif di sekitarnya seperti tanaman atau buku. Konten foto asli harus tetap utuh di dalam bingkai. {prompt}', singleUploader: true, placeholder: 'Tambahkan detail, mis: bingkai kayu, di sebelah jendela...' },
     { name: '3D Cartoon Character', prompt: 'A 3D cartoon character portrait in the style of modern animated movies. Critically important: The character\\\'s face, expression, and likeness must be 100% identical to the person in the uploaded photo. The background should be a simple, clean studio setup. {prompt}', singleUploader: true, placeholder: 'Tambahkan detail, mis: mengenakan headphone, mengedipkan mata...' },
     { name: 'Vintage film', prompt: 'Transform this image to look like a vintage 35mm film photo, with grainy texture, warm faded colors, and subtle light leaks. {prompt}', singleUploader: true, placeholder: 'Tambahkan detail kecil jika diinginkan...' },
     { name: 'Retro Smoke', prompt: 'A full-shot image captures a man, wearing a stylish denim jacket over a white t-shirt and grey jeans. He is leaning against a vintage orange car, with one arm casually resting on the car\'s roof and the other holding a cigarette to his lips, exhaling smoke that billows around him. The man\'s gaze is directed upwards, his expression contemplative. The background is blurred, featuring a soft, bright light that creates a hazy, dreamlike atmosphere. The overall aesthetic is cinematic and moody, with a slight sepia tone enhancing the vintage feel. {prompt}', singleUploader: true, placeholder: 'Tambahkan detail kecil jika diinginkan...' },
@@ -289,6 +291,7 @@ const App = () => {
   const [styleImagePreview, setStyleImagePreview] = useState<string | null>(null);
   const [isDescribeLoading, setIsDescribeLoading] = useState<boolean>(false);
   const [loadingMessage, setLoadingMessage] = useState<string>(loadingMessages[0]);
+  const [removeWatermark, setRemoveWatermark] = useState<boolean>(false);
   
   // Ref untuk input file
   const mainImageInputRef = useRef<HTMLInputElement>(null);
@@ -495,13 +498,17 @@ const App = () => {
 
         if (imageData && imageData.base64) {
             const rawImageUrl = `data:${imageData.mimeType};base64,${imageData.base64}`;
-            try {
-                const watermarkedImageUrl = await addWatermark(rawImageUrl);
-                setGeneratedImage(watermarkedImageUrl);
-            } catch (watermarkError: any) {
-                console.error("Gagal menambahkan watermark, menampilkan gambar asli:", watermarkError);
-                setError(`Gambar berhasil dibuat tetapi watermark gagal ditambahkan: ${watermarkError.message}`);
-                setGeneratedImage(rawImageUrl); // Fallback ke gambar asli
+            if (removeWatermark) {
+                setGeneratedImage(rawImageUrl);
+            } else {
+                try {
+                    const watermarkedImageUrl = await addWatermark(rawImageUrl);
+                    setGeneratedImage(watermarkedImageUrl);
+                } catch (watermarkError: any) {
+                    console.error("Gagal menambahkan watermark, menampilkan gambar asli:", watermarkError);
+                    setError(`Gambar berhasil dibuat tetapi watermark gagal ditambahkan: ${watermarkError.message}`);
+                    setGeneratedImage(rawImageUrl); // Fallback ke gambar asli
+                }
             }
         } else {
             throw new Error("Respons API tidak valid dari server.");
@@ -745,6 +752,15 @@ const App = () => {
                                     onChange={(e) => setIsFaceLocked(e.target.checked)}
                                 />
                                 <label htmlFor="lock-face">Lock Face (100%)</label>
+                            </div>
+                            <div className="checkbox-container">
+                                <input 
+                                    type="checkbox" 
+                                    id="remove-watermark" 
+                                    checked={removeWatermark}
+                                    onChange={(e) => setRemoveWatermark(e.target.checked)}
+                                />
+                                <label htmlFor="remove-watermark">Hapus Watermark</label>
                             </div>
                         </div>
                      </div>

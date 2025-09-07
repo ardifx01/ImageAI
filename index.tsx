@@ -1,9 +1,64 @@
-
 import React, { useState, useCallback, useRef } from 'react';
 import { createRoot } from 'react-dom/client';
 import { GoogleGenAI, Modality, Part } from "@google/genai";
 
 // --- Helper Functions ---
+
+/**
+ * Resizes an image file to a maximum dimension while maintaining aspect ratio.
+ * @param file The image file to resize.
+ * @param maxDimension The maximum width or height.
+ * @returns A promise that resolves with the resized file.
+ */
+const resizeImage = (file: File, maxDimension: number): Promise<File> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let { width, height } = img;
+
+        if (width > height) {
+          if (width > maxDimension) {
+            height = Math.round(height * (maxDimension / width));
+            width = maxDimension;
+          }
+        } else {
+          if (height > maxDimension) {
+            width = Math.round(width * (maxDimension / height));
+            height = maxDimension;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          return reject(new Error('Could not get canvas context'));
+        }
+        ctx.drawImage(img, 0, 0, width, height);
+        
+        canvas.toBlob((blob) => {
+          if (blob) {
+            const resizedFile = new File([blob], file.name, {
+              type: file.type,
+              lastModified: Date.now(),
+            });
+            resolve(resizedFile);
+          } else {
+            reject(new Error('Canvas toBlob failed'));
+          }
+        }, file.type, 0.9); // Use 0.9 quality for JPEGs
+      };
+      img.onerror = (err) => reject(err);
+      img.src = event.target?.result as string;
+    };
+    reader.onerror = (err) => reject(err);
+    reader.readAsDataURL(file);
+  });
+};
+
 
 /**
  * Converts a file to a base64 string.
@@ -61,67 +116,70 @@ const generateFilename = (type: 'original' | 'generated', styleName: string, ori
 };
 
 
-// --- SVG Icon Components ---
+// --- SVG Icon Components (New Sleek Set) ---
 
 const DownloadIcon = () => (
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M19.5 13.5V19.5H4.5V13.5H2.5V19.5C2.5 20.6046 3.39543 21.5 4.5 21.5H19.5C20.6046 21.5 21.5 20.6046 21.5 19.5V13.5H19.5Z" fill="currentColor"/>
-        <path d="M12 15.5L16.5 11L15.086 9.58599L13 11.672V2.5H11V11.672L8.91401 9.58599L7.5 11L12 15.5Z" fill="currentColor"/>
+        <path d="M4 15L4 18C4 19.1046 4.89543 20 6 20L18 20C19.1046 20 20 19.1046 20 18V15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M12 4V14M12 14L8 10M12 14L16 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
 );
 const UseAsInputIcon = () => (
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M13.25 2.5H11.75V8.5H5.75V10L11.75 10V16H13.25V10H19.25V8.5L13.25 8.5V2.5Z" fill="currentColor"/>
-        <path d="M19.5 21.5H5.5C4.39543 21.5 3.5 20.6046 3.5 19.5V13H5.5V19.5H19.5V13H21.5V19.5C21.5 20.6046 20.6046 21.5 19.5 21.5Z" fill="currentColor"/>
+        <path d="M12 13L12 3M12 13L16 9M12 13L8 9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M4 14H6.55116C7.54084 14 8.44192 14.6441 8.78363 15.5562L10.3235 19.4438C10.6652 20.3559 11.5663 21 12.556 21H14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M20 14H18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
 );
 const CopyIcon = () => (
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M17.5 2.5H9.5C8.39543 2.5 7.5 3.39543 7.5 4.5V12.5H9.5V4.5H17.5V12.5H19.5V4.5C19.5 3.39543 18.6046 2.5 17.5 2.5Z" fill="currentColor"/>
-        <path d="M14.5 7.5H6.5C5.39543 7.5 4.5 8.39543 4.5 9.5V19.5C4.5 20.6046 5.39543 21.5 6.5 21.5H14.5C15.6046 21.5 16.5 20.6046 16.5 19.5V9.5C16.5 8.39543 15.6046 7.5 14.5 7.5ZM14.5 19.5H6.5V9.5H14.5V19.5Z" fill="currentColor"/>
+        <rect x="9" y="9" width="12" height="12" rx="2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M5 15H4C3.44772 15 3 14.5523 3 14V4C3 3.44772 3.44772 3 4 3H14C14.5523 3 15 3.44772 15 4V5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
 );
 const UpscaleIcon = () => (
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M4 20L10 14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        <path d="M13 5H19V11" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        <path d="M5 11V5H11" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        <path d="M19 13V19H13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        <path d="M19 5L14 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M14 10L20 4M20 4H15M20 4V9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M10 14L4 20M4 20H9M4 20V15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
 );
 const EnhanceIcon = () => (
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M12 2.5L14.3267 9.67333L21.5 12L14.3267 14.3267L12 21.5L9.67333 14.3267L2.5 12L9.67333 9.67333L12 2.5Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M12 3V5M12 19V21M3 12H5M19 12H21M5.63604 5.63604L7.05025 7.05025M16.9497 16.9497L18.364 18.364M5.63604 18.364L7.05025 16.9497M16.9497 7.05025L18.364 5.63604" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M12 8.5L13.1818 10.8182L15.5 12L13.1818 13.1818L12 15.5L10.8182 13.1818L8.5 12L10.8182 10.8182L12 8.5Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
 );
 const RemoveBgIcon = () => (
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M12 2.5C16.9706 2.5 21 6.52944 21 11.5C21 16.4706 16.9706 20.5 12 20.5C7.02944 20.5 3 16.4706 3 11.5C3 6.52944 7.02944 2.5 12 2.5Z" stroke="currentColor" strokeWidth="2"/>
+        <path d="M12 21C16.9706 21 21 16.9706 21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12C3 16.9706 7.02944 21 12 21Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" strokeDasharray="4 4"/>
         <path d="M21 3L3 21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
 );
 const ChangeBgIcon = () => (
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M3 18.5L8.5 13L12.5 17L21 8.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        <path d="M16 3.5H20C20.8284 3.5 21.5 4.17157 21.5 5V19C21.5 19.8284 20.8284 20.5 20 20.5H4C3.17157 20.5 2.5 19.8284 2.5 19V5C2.5 4.17157 3.17157 3.5 4 3.5H8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        <circle cx="12" cy="8.5" r="2" stroke="currentColor" strokeWidth="2"/>
+        <path d="M21 12.18C21 12.18 18.66 15 12 15C5.34 15 3 12.18 3 12.18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M3 8.82C3 8.82 5.34 6 12 6C18.66 6 21 8.82 21 8.82" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M12 3V21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
 );
 const ColorBalanceIcon = () => (
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
         <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        <path d="M12 12L18.36 6.36" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        <path d="M12 12L6.36 18.36" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        <path d="M12 12L6.36 6.36" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        <path d="M12 12L18.36 18.36" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M12 3V21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M16.242 7.75803L7.75803 16.242" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
 );
 const AIDescribeIcon = () => (
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M12 2.5L14.3267 9.67333L21.5 12L14.3267 14.3267L12 21.5L9.67333 14.3267L2.5 12L9.67333 9.67333L12 2.5Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-        <path d="M5 5L7 7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-        <path d="M17 17L19 19" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M12 4.5L13.5 8L17 9.5L13.5 11L12 14.5L10.5 11L7 9.5L10.5 8L12 4.5Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M19.5 12L18 13.5L19.5 15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M15 19.5L13.5 18L12 19.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M4.5 12L6 13.5L4.5 15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+);
+const StarIcon = () => (
+    <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
 );
 
@@ -134,14 +192,6 @@ const Navbar = () => (
             <h1>ImageAI IT PALUGADA</h1>
         </div>
     </nav>
-);
-
-const Hero = () => (
-    <header className="hero">
-        <div className="hero-container">
-            <h2>Create Powerful Ai Art or Image in seconds.</h2>
-        </div>
-    </header>
 );
 
 const Footer = () => (
@@ -193,11 +243,10 @@ interface ImagePlaceholderProps {
     isLoading: boolean;
     onImageUpload: (event: React.ChangeEvent<HTMLInputElement>) => void;
     isOriginal?: boolean;
-    toolbarActions?: ImageToolbarProps;
     onDownload?: () => void;
 }
 
-const ImagePlaceholder: React.FC<ImagePlaceholderProps> = ({ image, isLoading, onImageUpload, isOriginal = false, toolbarActions, onDownload }) => {
+const ImagePlaceholder: React.FC<ImagePlaceholderProps> = ({ image, isLoading, onImageUpload, isOriginal = false, onDownload }) => {
     return (
         <div className="image-placeholder">
             {image?.url ? (
@@ -221,7 +270,6 @@ const ImagePlaceholder: React.FC<ImagePlaceholderProps> = ({ image, isLoading, o
                     <p>Generating...</p>
                 </div>
             )}
-            {!isOriginal && image?.url && toolbarActions && <ImageToolbar {...toolbarActions} />}
             {isOriginal && image?.url && onDownload && (
                 <div className="image-toolbar-single">
                     <button className="toolbar-button" onClick={onDownload} title="Download Original Image">
@@ -253,46 +301,70 @@ const App = () => {
 
     const downloadCounter = useRef({ original: 1, generated: 1 });
 
-    const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.files && event.target.files[0]) {
-            const file = event.target.files[0];
-            const url = URL.createObjectURL(file);
-            const img = new Image();
-            img.onload = () => {
-                const ratio = getAspectRatio(img.width, img.height);
-                setUploadedImage({ url, file, aspectRatio: ratio });
-                setAspectRatio(`Original (${ratio})`);
-                if (!['Blend Photos', 'Foto Bersama', 'Ganti Baju', 'Pose'].includes(style)) {
-                    setUploadedBgImage({ url: '', file: null });
-                    setClothingImage({ url: '', file: null });
-                    setPoseImage({ url: '', file: null });
-                }
-            };
-            img.src = url;
+             try {
+                const originalFile = event.target.files[0];
+                const file = await resizeImage(originalFile, 1024);
+                const url = URL.createObjectURL(file);
+                const img = new Image();
+                img.onload = () => {
+                    const ratio = getAspectRatio(img.width, img.height);
+                    setUploadedImage({ url, file, aspectRatio: ratio });
+                    setAspectRatio(`Original (${ratio})`);
+                    if (!['Blend Photos', 'Foto Bersama', 'Ganti Baju', 'Pose'].includes(style)) {
+                        setUploadedBgImage({ url: '', file: null });
+                        setClothingImage({ url: '', file: null });
+                        setPoseImage({ url: '', file: null });
+                    }
+                };
+                img.src = url;
+            } catch (err) {
+                console.error("Image processing failed:", err);
+                setError("Failed to process image. It might be corrupted or in an unsupported format.");
+            }
         }
     };
 
-    const handleBgImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleBgImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.files && event.target.files[0]) {
-            const file = event.target.files[0];
-            const url = URL.createObjectURL(file);
-            setUploadedBgImage({ url, file });
+            try {
+                const originalFile = event.target.files[0];
+                const file = await resizeImage(originalFile, 1024);
+                const url = URL.createObjectURL(file);
+                setUploadedBgImage({ url, file });
+            } catch (err) {
+                 console.error("Image processing failed:", err);
+                 setError("Failed to process background image.");
+            }
         }
     };
     
-    const handleClothingImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleClothingImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.files && event.target.files[0]) {
-            const file = event.target.files[0];
-            const url = URL.createObjectURL(file);
-            setClothingImage({ url, file });
+            try {
+                const originalFile = event.target.files[0];
+                const file = await resizeImage(originalFile, 1024);
+                const url = URL.createObjectURL(file);
+                setClothingImage({ url, file });
+            } catch (err) {
+                 console.error("Image processing failed:", err);
+                 setError("Failed to process clothing image.");
+            }
         }
     };
 
-    const handlePoseImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handlePoseImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.files && event.target.files[0]) {
-            const file = event.target.files[0];
-            const url = URL.createObjectURL(file);
-            setPoseImage({ url, file });
+             try {
+                const originalFile = event.target.files[0];
+                const file = await resizeImage(originalFile, 1024);
+                const url = URL.createObjectURL(file);
+                setPoseImage({ url, file });
+            } catch (err) {
+                 console.error("Image processing failed:", err);
+                 setError("Failed to process pose image.");
+            }
         }
     };
 
@@ -403,11 +475,19 @@ const App = () => {
                 body: JSON.stringify({ prompt: currentPrompt, imageParts }),
             });
 
-            const result = await response.json();
-
             if (!response.ok) {
-                throw new Error(result.error || 'An unknown error occurred from the backend.');
+                const contentType = response.headers.get("content-type");
+                if (contentType && contentType.includes("application/json")) {
+                    const errorResult = await response.json();
+                    throw new Error(errorResult.error || `Backend error: ${response.statusText}`);
+                } else {
+                    const errorText = await response.text();
+                    console.error("Non-JSON response from backend:", errorText);
+                    throw new Error(`Server returned an unexpected response. This can happen if the uploaded image is too large. (Status: ${response.status})`);
+                }
             }
+            
+            const result = await response.json();
             
             const { base64, mimeType } = result;
             const imageUrl = `data:${mimeType};base64,${base64}`;
@@ -501,12 +581,20 @@ const App = () => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ imagePart }),
             });
-
-            const result = await response.json();
-             if (!response.ok) {
-                throw new Error(result.error || 'An unknown error occurred from the backend.');
+            
+            if (!response.ok) {
+                const contentType = response.headers.get("content-type");
+                if (contentType && contentType.includes("application/json")) {
+                    const errorResult = await response.json();
+                    throw new Error(errorResult.error || `Backend error: ${response.statusText}`);
+                } else {
+                    const errorText = await response.text();
+                    console.error("Non-JSON response from backend:", errorText);
+                    throw new Error(`Server returned an unexpected response. This can happen if the uploaded image is too large. (Status: ${response.status})`);
+                }
             }
 
+            const result = await response.json();
             const description = result.description;
             if (description) {
                 setPrompt(description);
@@ -669,7 +757,6 @@ const App = () => {
         <>
             <Navbar />
             <main className="main-content">
-                <Hero />
                 <div className="app-container">
                     <div className="panel controls-panel">
                         <h2>Controls</h2>
@@ -709,7 +796,7 @@ const App = () => {
                                      <div className="upload-main-container">
                                         {uploadedImage.url && <img id="main-image-thumbnail" src={uploadedImage.url} alt="Uploaded thumbnail" />}
                                         <label className="upload-btn">
-                                            {uploadedImage.url ? 'Change' : '+ Select'}
+                                            {uploadedImage.url ? 'Change Image' : '+ Select Image'}
                                             <input type="file" accept="image/*" onChange={handleImageUpload} style={{ display: 'none' }} />
                                         </label>
                                     </div>
@@ -722,8 +809,13 @@ const App = () => {
                             <h3>2. Style</h3>
                             <div className="style-selector">
                                 {styleButtons.map(s => (
-                                    <button key={s} className={`style-button ${style === s ? 'active' : ''}`} onClick={() => selectStyle(s)}>
-                                        {s}
+                                    <button 
+                                      key={s} 
+                                      className={`style-button ${style === s ? 'active' : ''} ${s === '+ Super Realistis' ? 'super-realistic-btn' : ''}`}
+                                      onClick={() => selectStyle(s)}
+                                    >
+                                      {s === '+ Super Realistis' && <StarIcon />}
+                                      {s}
                                     </button>
                                 ))}
                             </div>
@@ -807,7 +899,10 @@ const App = () => {
 
                     <div className="panel image-panel">
                         <h3>Generated</h3>
-                        <ImagePlaceholder image={generatedImage} isLoading={isLoading} onImageUpload={() => {}} toolbarActions={toolbarActions} />
+                         <div className="generated-image-container">
+                             <ImagePlaceholder image={generatedImage} isLoading={isLoading} onImageUpload={() => {}} />
+                             {!isLoading && generatedImage.url && <ImageToolbar {...toolbarActions} />}
+                         </div>
                     </div>
                 </div>
             </main>

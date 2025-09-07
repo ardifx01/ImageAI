@@ -1,9 +1,6 @@
 
 import { GoogleGenAI } from "@google/genai";
 
-// Menonaktifkan peringatan eksperimental jika perlu
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
-
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed' });
@@ -36,7 +33,8 @@ export default async function handler(req, res) {
       res.status(500).json({ error: "AI couldn't generate a description for this image." });
     }
 
-  } catch (error) {
+  } catch (error)
+   {
     console.error('Error calling Gemini API for description:', error);
     res.status(500).json({ error: `Failed to generate description: ${error.message}` });
   }

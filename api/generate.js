@@ -1,15 +1,12 @@
 
 import { GoogleGenAI, Modality } from "@google/genai";
 
-// Menonaktifkan peringatan eksperimental jika perlu, meskipun lebih baik untuk menanganinya dengan benar
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
-
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
-  // Vercel secara otomatis mengurai body JSON
+  // Vercel automatically parses the JSON body
   const { prompt, imageParts } = req.body;
 
   if (!prompt || !imageParts || !Array.isArray(imageParts) || imageParts.length === 0) {

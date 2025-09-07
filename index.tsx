@@ -189,7 +189,8 @@ const styles = [
     { name: 'Retro Smoke', prompt: 'A full-shot image captures a man, wearing a stylish denim jacket over a white t-shirt and grey jeans. He is leaning against a vintage orange car, with one arm casually resting on the car\'s roof and the other holding a cigarette to his lips, exhaling smoke that billows around him. The man\'s gaze is directed upwards, his expression contemplative. The background is blurred, featuring a soft, bright light that creates a hazy, dreamlike atmosphere. The overall aesthetic is cinematic and moody, with a slight sepia tone enhancing the vintage feel. {prompt}', singleUploader: true, placeholder: 'Tambahkan detail kecil jika diinginkan...' },
     { name: 'Campuran Gambar', prompt: 'Perpaduan artistik dari dua gambar. {prompt}', singleUploader: false },
     { name: 'Pakaian dari Gambar', prompt: 'Kenakan pakaian dari gambar kedua pada orang di gambar pertama. Pertahankan pose, wajah, dan latar belakang orang tersebut, tetapi ganti pakaian mereka. {prompt}', singleUploader: false },
-    { name: 'Pose Bersama', prompt: 'Satu foto yang menampilkan orang dari gambar pertama dan orang dari gambar kedua berpose bersama secara alami. Latar belakangnya adalah studio yang bersih dan netral. Sangat penting: Wajah kedua individu harus 100% identik dengan gambar sumber. {prompt}', singleUploader: false, placeholder: 'Tambahkan detail, mis: di taman kota, gaya kasual...' },
+    { name: 'Pose Bersama', prompt: 'Sebuah foto studio tunggal yang fotorealistik. Di dalam foto, orang dari gambar pertama dan orang dari gambar kedua berpose bersama secara alami. Latar belakangnya adalah studio yang bersih dan netral. Fitur wajah kedua individu terjaga sempurna dan 100% identik dengan gambar sumber. {prompt}', singleUploader: false, placeholder: 'Tambahkan detail, mis: di taman kota, gaya kasual...' },
+    { name: 'Selfie Bareng', prompt: 'Sebuah foto selfie close-up yang fotorealistik. Di dalam foto, orang dari gambar pertama dan orang dari gambar kedua berpose bersama seolah-olah sedang mengambil selfie. Latar belakangnya adalah {prompt}. Fitur wajah kedua individu terjaga sempurna dan 100% identik dengan gambar sumber.', singleUploader: false, placeholder: 'mis: di puncak gunung, di sebuah kafe...' },
 ];
 
 const loadingMessages = [
@@ -355,7 +356,7 @@ const App = () => {
     const isSingleUploader = currentStyle.singleUploader;
 
     // Validasi
-    const isPromptRequired = currentStyle.requiresPrompt || currentStyle.prompt.trim() === '{prompt}';
+    const isPromptRequired = currentStyle.requiresPrompt || currentStyle.prompt.includes('{prompt}');
 
     if (!prompt && isPromptRequired) {
         if (currentStyle.requiresPrompt) {
@@ -496,6 +497,10 @@ const App = () => {
     mainUploaderLabel = 'Orang 1';
     styleUploaderLabel = 'Orang 2';
     blendHelperText = 'Unggah dua foto orang yang berbeda untuk digabungkan.';
+  } else if (activeStyle === 'Selfie Bareng') {
+    mainUploaderLabel = 'Orang 1';
+    styleUploaderLabel = 'Orang 2';
+    blendHelperText = 'Unggah dua foto orang berbeda untuk membuat selfie bersama.';
   }
 
 

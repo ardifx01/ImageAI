@@ -180,6 +180,7 @@ const styles = [
     { name: 'Enhance Picture', prompt: 'Enhance this picture to improve its overall quality. Increase sharpness, clarity, and vibrancy of colors, and improve the lighting without changing the original content or style. Make it look like a professionally remastered high-resolution photo. {prompt}', singleUploader: true, placeholder: 'Tambahkan detail kecil jika diinginkan...' },
     { name: 'Monokrom Luxuri', prompt: "Use the face in this photo for a black-and-white studio shoot, showcasing 100% similarity in facial features and style to the uploaded photo. The lighting is soft and minimalist, creating sharp shadows and a moody atmosphere. The pose is relaxed, leaning slightly with one arm on the back of the chair, her face turned to the side. The background is plain, with a simple, modern aesthetic. Create hyperrealism, 8K, sharp focus, detailed textures, and cinematic lighting. {prompt}", singleUploader: true, placeholder: 'Tambahkan detail kecil jika diinginkan...' },
     { name: 'Efek Bokeh', prompt: 'Tambahkan efek bokeh yang halus di latar belakang gambar ini, membuat subjek utama lebih menonjol. Pertahankan fokus tajam pada subjek. {prompt}', singleUploader: true, placeholder: 'Tambahkan detail kecil jika diinginkan...' },
+    { name: 'Image Expand', prompt: 'Critically important: Do not change, modify, or edit the original uploaded image area. Expand the canvas of the uploaded image to a {aspectRatio} aspect ratio, filling the new empty space with content that seamlessly and realistically extends the original scene. Maintain the original image\'s style, lighting, and details. {prompt}', singleUploader: true, placeholder: 'AI akan memperluas gambar Anda. Tambahkan detail jika Anda ingin memandu perluasan.'},
     { name: 'Naik Vespa Kecil (Man)', prompt: "A Southeast Asian man. He wears a plain white oversized t-shirt, beige chinos, white flip-flops, black hair, and a beige snapback hat worn backwards. He's riding a brightly colored plastic Vespa toy motorcycle, minuscule compared to his body. While it looks goofy, his pose is very serious: his body is sharply angled toward a corner, his hairy legs off the ground, his knees bent tightly to the side of the motorcycle, an extreme cornering style reminiscent of MotoGP. Neither foot is on the ground. His facial expression is focused and concentrated, as if he were in a real race. The city street backdrop features dramatic motion blur to give the impression of high speed. The textures are hyper-realistic: his face, clothing, small plastic motorcycle, and the details of his flip-flops all look real. The contrast between the absurd toy motorcycle and the style of professional racing creates a comedic yet epic result. {prompt}", singleUploader: true, placeholder: 'Tambahkan detail kecil jika diinginkan...' },
     { name: 'Naik Yamaha Filano', prompt: 'A hyper-realistic, cinematic shot of the person in the photo riding a sleek, modern Yamaha Filano scooter. The setting is a beautiful, quiet, winding asphalt road flanked by lush green scenery under a clear blue sky. The late afternoon sun casts a warm, golden glow. The rider looks relaxed and content, enjoying the journey. There\'s a slight motion blur in the background to emphasize the sense of a smooth, peaceful ride. 8K, sharp focus on the rider and motorcycle, detailed textures. {prompt}', singleUploader: true, placeholder: 'Tambahkan detail kecil jika diinginkan...' },
     { name: 'Naik Yamaha XSR', prompt: 'An editorial-style, hyper-realistic photograph. The person from the uploaded photo is riding a powerful Yamaha XSR motorcycle on a scenic, empty road at twilight. The bike\'s iconic round headlight is on, cutting through the dusky light. The rider has a confident posture. The background features a dramatic landscape like mountains or a coastline. The atmosphere is cool, adventurous, and slightly moody. Shot with a prime lens for a shallow depth of field, focusing sharply on the rider and the bike. 8K, high detail, cinematic color grading. {prompt}', singleUploader: true, placeholder: 'Tambahkan detail kecil jika diinginkan...' },
@@ -299,14 +300,10 @@ const App = () => {
   
   const handleStyleClick = (style: { name: string, prompt: string, singleUploader: boolean, requiresPrompt?: boolean }) => {
     setActiveStyle(style.name);
-    // Hanya perbarui prompt jika gaya tidak memerlukan prompt pengguna kustom
-    if (!style.requiresPrompt) {
-        const newPrompt = style.prompt.includes('{prompt}') ? '' : style.prompt;
-        setPrompt(newPrompt);
-    } else {
-        // Jika memerlukan prompt, kosongkan kotak teks agar pengguna dapat mengetik
-        setPrompt('');
-    }
+    // Mengisi textarea dengan prompt dasar dari gaya yang dipilih.
+    // Menghapus placeholder {prompt} agar pengguna bisa langsung menambahkan detail.
+    const displayPrompt = style.prompt.replace('{prompt}', '').trim();
+    setPrompt(displayPrompt);
   };
 
   const handleDescribe = async () => {
@@ -375,14 +372,22 @@ const App = () => {
     const timeoutId = setTimeout(() => controller.abort(), 60000); // Batas waktu 60 detik
 
     try {
-        // Buat prompt akhir
-        let finalPrompt = currentStyle.prompt.replace('{prompt}', prompt);
+        // Prompt dari textarea sekarang adalah sumber kebenaran utama.
+        // Kita masih perlu mengganti placeholder {aspectRatio} jika ada.
+        let finalPrompt = prompt.replace('{aspectRatio}', aspectRatio);
 
         // Tambahkan instruksi penguncian wajah jika diaktifkan
         if (isFaceLocked) {
-            const lockFaceInstruction = "Critically important: Do not change the person's face or identity at all. The final result must be 100% identical to the original person's face. ";
-            finalPrompt = lockFaceInstruction + finalPrompt;
+            const lockFaceInstruction = "Critically important: Do not change the person's face or identity at all. The final result must be 100% identical to the original person's face.";
+            finalPrompt = `${lockFaceInstruction} ${finalPrompt}`;
         }
+        
+        // Tambahkan instruksi rasio aspek ke prompt hanya jika belum ditambahkan oleh gaya
+        if (!currentStyle.prompt.includes('{aspectRatio}')) {
+             const aspectRatioInstruction = `The output image must have a ${aspectRatio} aspect ratio.`;
+             finalPrompt = `${finalPrompt.trim()} ${aspectRatioInstruction}`;
+        }
+
 
         // Siapkan bagian gambar
         const imageParts: Part[] = [];

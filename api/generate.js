@@ -40,13 +40,30 @@ export default async function handler(req, res) {
   }
 
   try {
+    // --- Logika Pemilihan Model Dinamis ---
+    const isMultiImageRequest = imageParts.length > 1;
+    let modelName;
+    let modelConfig;
+
+    if (isMultiImageRequest) {
+      // Gunakan model yang lebih serbaguna untuk permintaan multi-gambar
+      modelName = 'gemini-2.5-flash';
+      // Model ini tidak memerlukan 'responseModalities'
+      modelConfig = {}; 
+    } else {
+      // Gunakan model yang dioptimalkan untuk pengeditan satu gambar
+      modelName = 'gemini-2.5-flash-image-preview';
+      modelConfig = {
+        responseModalities: [Modality.IMAGE, Modality.TEXT],
+      };
+    }
+    // ------------------------------------
+
     const ai = new GoogleGenAI({ apiKey });
     const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash-image-preview',
+      model: modelName,
       contents: { parts: [...imageParts, { text: prompt }] },
-      config: {
-        responseModalities: [Modality.IMAGE, Modality.TEXT],
-      },
+      config: modelConfig,
     });
     
     const candidate = response.candidates?.[0];
@@ -62,13 +79,14 @@ export default async function handler(req, res) {
     let imageData = null;
     let responseText = '';
 
+    // Cari bagian gambar dalam respons
     for (const part of candidate.content?.parts || []) {
-      if (part.inlineData) {
+      if (part.inlineData && part.inlineData.data) {
         imageData = {
           base64: part.inlineData.data,
           mimeType: part.inlineData.mimeType,
         };
-        break; 
+        break; // Ditemukan gambar, hentikan perulangan
       } else if (part.text) {
         responseText += part.text;
       }

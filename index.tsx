@@ -109,18 +109,19 @@ const DescribeIcon = () => (
 
 // --- Definisi Gaya ---
 const styles = [
-    { name: 'Default', prompt: '{prompt}', singleUploader: true },
+    { name: 'Default', prompt: '{prompt}', singleUploader: true, placeholder: 'Jelaskan visi Anda... (misalnya, seekor anjing astronaut di bulan)' },
     { name: 'Kartun', prompt: 'Gaya kartun: ilustrasi ceria, garis tebal, warna-warna cerah. {prompt}', singleUploader: true },
     { name: 'Fantasi', prompt: 'Gaya fantasi: pemandangan epik, elemen magis, atmosfer seperti mimpi. {prompt}', singleUploader: true },
     { name: 'Fotorealistik', prompt: 'Gaya fotorealistik: detail tajam, pencahayaan dan tekstur yang disempurnakan. {prompt}', singleUploader: true },
-    { name: 'Ganti Latar', prompt: 'Subjek utama dengan latar belakang baru: {prompt}', singleUploader: true, requiresPrompt: true },
-    { name: 'Ganti Pakaian', prompt: 'Subjek mengenakan pakaian yang berbeda: {prompt}', singleUploader: true, requiresPrompt: true },
-    { name: 'Ganti Rambut', prompt: 'Subjek dengan gaya rambut baru: {prompt}', singleUploader: true, requiresPrompt: true },
+    { name: 'Ganti Latar', prompt: 'Subjek utama dengan latar belakang baru: {prompt}', singleUploader: true, requiresPrompt: true, placeholder: 'Jelaskan latar belakang baru, misalnya: di pantai saat senja' },
+    { name: 'Ganti Pakaian', prompt: 'Subjek mengenakan pakaian yang berbeda: {prompt}', singleUploader: true, requiresPrompt: true, placeholder: 'Jelaskan pakaian baru, misalnya: jaket kulit hitam dan jeans' },
+    { name: 'Ganti Rambut', prompt: 'Subjek dengan gaya rambut baru: {prompt}', singleUploader: true, requiresPrompt: true, placeholder: 'Jelaskan gaya rambut baru, misalnya: rambut pendek berwarna biru' },
     { name: 'Model Aestetik', prompt: 'Gaya model estetis: postur elegan, pencahayaan dramatis, komposisi artistik. {prompt}', singleUploader: true },
     { name: 'Monochrome for Man', prompt: 'Foto monokrom profil samping seorang pria, cahaya menyoroti tepi rambut dan wajah, latar belakang gelap, menonjolkan siluet. {prompt}', singleUploader: true },
     { name: 'Monochrome for woman', prompt: 'Foto monokrom profil samping seorang wanita, cahaya menyoroti tepi rambut dan wajah, latar belakang gelap, menonjolkan siluet. {prompt}', singleUploader: true },
     { name: 'Cinematic candid', prompt: 'Cinematic candid photography with a blend of Matte Film Look preset, Soft Fade Shadows, and subtle grain effect. Featuring a handsome young man like the attached reference photo. He stands cool and relaxed in the golden savanna of Wairinding, Sumba. His body faces slightly sideways, one hand in his pants pocket while the other tosses a traveler tumbler into the air. The tumbler is blurred, spinning above his hand. Outfit: oversized cream linen shirt, loose khaki pants, classic white sneakers, and a sporty watch. He has a high-end Canon camera slung around his neck. The shot is taken from a low angle hidden behind the tall wild savanna grass, with slightly blurred grass in the foreground creating dreamy depth and a natural frame on the side of the frame. The subject and spinning tumbler are in sharp focus, with the background of golden savanna hills and soft blue sky. Warm late-afternoon light gently illuminates the scene, giving pastel tones with faded highlights and softly fading shadows, creating a cinematic, dreamy, and timeless atmosphere. {prompt}', singleUploader: true },
-    { name: 'Selfie with Artist', prompt: 'Make it so that I am taking a selfie with {prompt} a backstage concert in America. Make the natural lighting photo', singleUploader: true, requiresPrompt: true },
+    { name: 'Selfie with Artist', prompt: 'Make it so that I am taking a selfie with {prompt} a backstage concert in America. Make the natural lighting photo', singleUploader: true, requiresPrompt: true, placeholder: 'Sebutkan nama artis, misalnya: Taylor Swift' },
+    { name: 'Gantungan Kunci', prompt: 'Buat gantungan kunci figur karet 1:10, dengan jari-jari memegangnya. Latar belakang buram, tali gantungan kunci karet {prompt}', singleUploader: true, requiresPrompt: true, placeholder: 'Isi detailnya, misalnya: berwarna biru dengan tulisan \'BALI\' putih' },
     { name: 'Campuran Gambar', prompt: 'Perpaduan artistik dari dua gambar. {prompt}', singleUploader: false },
     { name: 'Pakaian dari Gambar', prompt: 'Kenakan pakaian dari gambar kedua pada orang di gambar pertama. Pertahankan pose, wajah, dan latar belakang orang tersebut, tetapi ganti pakaian mereka. {prompt}', singleUploader: false },
 ];
@@ -248,6 +249,9 @@ const App = () => {
     setGeneratedImage(null);
     setError('');
 
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 15000); // Batas waktu 15 detik
+
     try {
         // Buat prompt akhir
         const finalPrompt = currentStyle.prompt.replace('{prompt}', prompt);
@@ -257,11 +261,12 @@ const App = () => {
         if (mainImage) imageParts.push(await fileToGenerativePart(mainImage));
         if (!isSingleUploader && styleImage) imageParts.push(await fileToGenerativePart(styleImage));
 
-        // Panggilan API ke backend
+        // Panggilan API ke backend dengan sinyal abort
         const response = await fetch('/api/generate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ prompt: finalPrompt, imageParts }),
+          signal: controller.signal,
         });
 
         if (!response.ok) {
@@ -279,9 +284,14 @@ const App = () => {
 
     } catch (e: any) {
         console.error('Error in generateImage:', e);
-        setError(`Pembuatan gagal: ${e.message}`);
+        if (e.name === 'AbortError') {
+            setError("Pembuatan gagal: Permintaan memakan waktu terlalu lama (timeout). Ini mungkin karena beban server yang tinggi atau batasan platform hosting. Coba lagi nanti.");
+        } else {
+            setError(`Pembuatan gagal: ${e.message}`);
+        }
         setGeneratedImage(null);
     } finally {
+        clearTimeout(timeoutId);
         setIsLoading(false);
     }
   };
@@ -413,9 +423,10 @@ const App = () => {
                         value={prompt}
                         onChange={(e) => setPrompt(e.target.value)}
                         placeholder={
-                            currentStyle.requiresPrompt 
-                                ? `misalnya, kota cyberpunk futuristik` 
-                                : `Jelaskan visi Anda...`
+                            currentStyle.placeholder || // Gunakan placeholder khusus jika ada
+                            (currentStyle.requiresPrompt 
+                                ? `Jelaskan perubahan yang Anda inginkan...` // Fallback umum
+                                : `Jelaskan visi Anda...`)
                         }
                         rows={4}
                     />

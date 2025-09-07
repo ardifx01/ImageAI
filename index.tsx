@@ -131,6 +131,7 @@ const styles = [
     { name: 'Monokrom Luxuri', prompt: "Use the face in this photo for a black-and-white studio shoot, showcasing 100% similarity in facial features and style to the uploaded photo. The lighting is soft and minimalist, creating sharp shadows and a moody atmosphere. The pose is relaxed, leaning slightly with one arm on the back of the chair, her face turned to the side. The background is plain, with a simple, modern aesthetic. Create hyperrealism, 8K, sharp focus, detailed textures, and cinematic lighting. {prompt}", singleUploader: true, placeholder: 'Tambahkan detail kecil jika diinginkan...' },
     { name: 'Campuran Gambar', prompt: 'Perpaduan artistik dari dua gambar. {prompt}', singleUploader: false },
     { name: 'Pakaian dari Gambar', prompt: 'Kenakan pakaian dari gambar kedua pada orang di gambar pertama. Pertahankan pose, wajah, dan latar belakang orang tersebut, tetapi ganti pakaian mereka. {prompt}', singleUploader: false },
+    { name: 'Pose Bersama', prompt: 'Ambil orang dari gambar pertama dan orang dari gambar kedua, lalu gabungkan mereka ke dalam satu foto baru yang kohesif. Buatlah seolah-olah mereka sedang berpose bersama secara alami untuk sebuah foto. Pertahankan kemiripan wajah dan fitur utama dari kedua orang tersebut. Tempatkan mereka di latar belakang studio yang netral. {prompt}', singleUploader: false, placeholder: 'Tambahkan detail, mis: di taman kota, gaya kasual...' },
 ];
 
 // --- Komponen Aplikasi Utama ---
@@ -210,7 +211,11 @@ const App = () => {
 
         if (!response.ok) {
             const err = await response.json();
-            throw new Error(err.error || 'Gagal mendeskripsikan gambar.');
+            const message = err.error || 'Gagal mendeskripsikan gambar.';
+            if (response.status === 429) {
+                throw new Error("429 RESOURCE_EXHAUSTED");
+            }
+            throw new Error(message);
         }
 
         const data = await response.json();
@@ -223,7 +228,7 @@ const App = () => {
     } catch (e: any) {
         console.error('Error in handleDescribe:', e);
         if (e.message && (e.message.includes('429') || e.message.toUpperCase().includes('RESOURCE_EXHAUSTED'))) {
-            setError("Batas penggunaan AI tercapai. Silakan tunggu sebentar lalu coba lagi.");
+            setError("Batas penggunaan AI tercapai. Silakan tunggu satu menit lalu coba lagi.");
         } else {
             setError(`Deskripsi gagal: ${e.message}`);
         }
@@ -252,7 +257,7 @@ const App = () => {
         return;
     }
     if (!isSingleUploader && (!mainImage || !styleImage)) {
-        setError('Silakan unggah gambar utama dan gambar gaya untuk mode ini.');
+        setError('Silakan unggah gambar utama dan gambar kedua untuk mode ini.');
         return;
     }
 
@@ -261,7 +266,7 @@ const App = () => {
     setError('');
 
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 15000); // Batas waktu 15 detik
+    const timeoutId = setTimeout(() => controller.abort(), 60000); // Batas waktu 60 detik
 
     try {
         // Buat prompt akhir
@@ -282,7 +287,11 @@ const App = () => {
 
         if (!response.ok) {
             const err = await response.json();
-            throw new Error(err.error || `Terjadi kesalahan: ${response.statusText}`);
+            const message = err.error || `Terjadi kesalahan: ${response.statusText}`;
+            if (response.status === 429) {
+                throw new Error("429 RESOURCE_EXHAUSTED");
+            }
+            throw new Error(message);
         }
 
         const imageData = await response.json();
@@ -356,7 +365,12 @@ const App = () => {
     mainUploaderLabel = 'Orang';
     styleUploaderLabel = 'Pakaian';
     blendHelperText = 'Unggah foto orang dan gambar pakaian yang ingin Anda kenakan.';
+  } else if (activeStyle === 'Pose Bersama') {
+    mainUploaderLabel = 'Orang 1';
+    styleUploaderLabel = 'Orang 2';
+    blendHelperText = 'Unggah dua foto orang yang berbeda untuk digabungkan.';
   }
+
 
   return (
     <>

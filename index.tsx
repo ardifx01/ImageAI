@@ -358,16 +358,6 @@ const App = () => {
     const isSingleUploader = currentStyle.singleUploader;
 
     // Validasi
-    const isPromptRequired = currentStyle.requiresPrompt || currentStyle.prompt.includes('{prompt}');
-
-    if (!prompt && isPromptRequired) {
-        if (currentStyle.requiresPrompt) {
-            setError(`Silakan jelaskan apa yang ingin Anda ubah. Contoh untuk "${currentStyle.name}": "kemeja biru" atau "pantai saat senja".`);
-        } else {
-            setError('Silakan masukkan prompt untuk memandu AI.');
-        }
-        return;
-    }
     if (isSingleUploader && !mainImage) {
         setError('Silakan unggah gambar utama.');
         return;

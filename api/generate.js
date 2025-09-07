@@ -40,23 +40,19 @@ export default async function handler(req, res) {
   }
 
   try {
-    // --- Logika Pemilihan Model Dinamis ---
+    // --- Logika Pemilihan Model & Konfigurasi ---
     const isMultiImageRequest = imageParts.length > 1;
-    let modelName;
-    let modelConfig;
+    
+    // Pilih model berdasarkan jumlah gambar
+    const modelName = isMultiImageRequest 
+      ? 'gemini-2.5-flash' // Model serbaguna untuk multi-gambar
+      : 'gemini-2.5-flash-image-preview'; // Model yang dioptimalkan untuk pengeditan satu gambar
 
-    if (isMultiImageRequest) {
-      // Gunakan model yang lebih serbaguna untuk permintaan multi-gambar
-      modelName = 'gemini-2.5-flash';
-      // Model ini tidak memerlukan 'responseModalities'
-      modelConfig = {}; 
-    } else {
-      // Gunakan model yang dioptimalkan untuk pengeditan satu gambar
-      modelName = 'gemini-2.5-flash-image-preview';
-      modelConfig = {
-        responseModalities: [Modality.IMAGE, Modality.TEXT],
-      };
-    }
+    // Konfigurasi ini PENTING untuk kedua model untuk memastikan output gambar.
+    // Ini secara eksplisit memberitahu AI untuk menghasilkan gambar (dan teks).
+    const modelConfig = {
+      responseModalities: [Modality.IMAGE, Modality.TEXT],
+    };
     // ------------------------------------
 
     const ai = new GoogleGenAI({ apiKey });
@@ -96,7 +92,7 @@ export default async function handler(req, res) {
       res.status(200).json(imageData);
     } else {
       const errorMessage = responseText 
-        ? `API returned text instead of an image: "${responseText}"`
+        ? `API returned text instead of an image: "${responseText.trim()}"`
         : "API did not return an image. It might have been blocked due to safety settings or a prompt issue.";
       res.status(500).json({ error: errorMessage });
     }

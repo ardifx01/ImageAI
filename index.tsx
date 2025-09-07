@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import type { Part } from "@google/genai"; // Hanya menggunakan tipe, bukan seluruh library
@@ -208,6 +207,7 @@ const App = () => {
   const [activeStyle, setActiveStyle] = useState<string>('Default');
   const [aspectRatio, setAspectRatio] = useState<string>('1:1');
   const [isAspectRatioLocked, setIsAspectRatioLocked] = useState<boolean>(false);
+  const [isFaceLocked, setIsFaceLocked] = useState<boolean>(false);
   const [mainImagePreview, setMainImagePreview] = useState<string | null>(null);
   const [styleImagePreview, setStyleImagePreview] = useState<string | null>(null);
   const [isDescribeLoading, setIsDescribeLoading] = useState<boolean>(false);
@@ -375,7 +375,13 @@ const App = () => {
 
     try {
         // Buat prompt akhir
-        const finalPrompt = currentStyle.prompt.replace('{prompt}', prompt);
+        let finalPrompt = currentStyle.prompt.replace('{prompt}', prompt);
+
+        // Tambahkan instruksi penguncian wajah jika diaktifkan
+        if (isFaceLocked) {
+            const lockFaceInstruction = "Critically important: Do not change the person's face or identity at all. The final result must be 100% identical to the original person's face. ";
+            finalPrompt = lockFaceInstruction + finalPrompt;
+        }
 
         // Siapkan bagian gambar
         const imageParts: Part[] = [];
@@ -613,6 +619,15 @@ const App = () => {
                                     onChange={(e) => setIsAspectRatioLocked(e.target.checked)}
                                 />
                                 <label htmlFor="lock-aspect-ratio">Kunci Rasio Aspek</label>
+                            </div>
+                            <div className="checkbox-container">
+                                <input 
+                                    type="checkbox" 
+                                    id="lock-face" 
+                                    checked={isFaceLocked}
+                                    onChange={(e) => setIsFaceLocked(e.target.checked)}
+                                />
+                                <label htmlFor="lock-face">Lock Face (100%)</label>
                             </div>
                         </div>
                      </div>

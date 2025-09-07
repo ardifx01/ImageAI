@@ -61,9 +61,16 @@ export default async function handler(req, res) {
     // ------------------------------------
 
     const ai = new GoogleGenAI({ apiKey });
+
+    // Membuat payload konten yang lebih eksplisit untuk menghindari galat "invalid argument"
+    const userContent = {
+        role: "user",
+        parts: [...imageParts, { text: prompt }],
+    };
+
     const response = await ai.models.generateContent({
       model: modelName,
-      contents: { parts: [...imageParts, { text: prompt }] },
+      contents: [userContent], // Menggunakan format Content[] yang eksplisit dan benar
       config: modelConfig,
     });
     

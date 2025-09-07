@@ -5,6 +5,60 @@ import type { Part } from "@google/genai"; // Hanya menggunakan tipe, bukan selu
 // --- Fungsi Bantuan ---
 
 /**
+ * Menambahkan watermark ke gambar.
+ * @param imageUrl URL data base64 dari gambar.
+ * @returns Promise yang diselesaikan dengan URL data base64 dari gambar yang sudah diberi watermark.
+ */
+const addWatermark = (imageUrl: string): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.src = imageUrl;
+
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width;
+      canvas.height = img.height;
+
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        return reject(new Error('Tidak dapat mendapatkan konteks kanvas'));
+      }
+
+      // 1. Gambar gambar asli
+      ctx.drawImage(img, 0, 0);
+
+      // 2. Konfigurasi teks watermark
+      const padding = 20; // Padding dari tepi
+      // Ukuran font dinamis berdasarkan lebar gambar, dengan min/max
+      const fontSize = Math.max(12, Math.min(img.width / 40, 48)); 
+      ctx.font = `bold ${fontSize}px Poppins`;
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.6)'; // Putih dengan opasitas 60%
+      ctx.textAlign = 'right';
+      ctx.textBaseline = 'bottom';
+
+      // 3. Tambahkan bayangan halus untuk keterbacaan yang lebih baik
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.7)';
+      ctx.shadowBlur = 5;
+      ctx.shadowOffsetX = 2;
+      ctx.shadowOffsetY = 2;
+
+      // 4. Gambar teks
+      ctx.fillText('Ai By IT PALUGADA', canvas.width - padding, canvas.height - padding);
+
+      // 5. Selesaikan dengan URL data baru
+      resolve(canvas.toDataURL('image/png'));
+    };
+
+    img.onerror = (err) => {
+      console.error("Gagal memuat gambar untuk watermarking:", err);
+      reject(new Error('Gagal memuat gambar untuk menambahkan watermark.'));
+    };
+  });
+};
+
+
+/**
  * Mengubah ukuran gambar jika dimensinya melebihi batas maksimal.
  * @param file File gambar yang akan diubah ukurannya.
  * @param maxDimension Dimensi maksimal (lebar atau tinggi).
@@ -442,7 +496,15 @@ const App = () => {
         const imageData = await response.json();
 
         if (imageData && imageData.base64) {
-            setGeneratedImage(`data:${imageData.mimeType};base64,${imageData.base64}`);
+            const rawImageUrl = `data:${imageData.mimeType};base64,${imageData.base64}`;
+            try {
+                const watermarkedImageUrl = await addWatermark(rawImageUrl);
+                setGeneratedImage(watermarkedImageUrl);
+            } catch (watermarkError: any) {
+                console.error("Gagal menambahkan watermark, menampilkan gambar asli:", watermarkError);
+                setError(`Gambar berhasil dibuat tetapi watermark gagal ditambahkan: ${watermarkError.message}`);
+                setGeneratedImage(rawImageUrl); // Fallback ke gambar asli
+            }
         } else {
             throw new Error("Respons API tidak valid dari server.");
         }

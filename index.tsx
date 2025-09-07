@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import type { Part } from "@google/genai"; // Hanya menggunakan tipe, bukan seluruh library
@@ -194,6 +195,7 @@ const styles = [
     { name: 'Foto Studio (Solo)', prompt: 'A professional studio photograph of the person in the image. The background is a clean, neutral color (e.g., light gray or white). The lighting is soft and flattering, creating gentle shadows to define the facial features (like Rembrandt or loop lighting). The subject has a natural, relaxed pose. The image is hyper-realistic, 8k, with sharp focus and detailed textures. Critically important: The person\'s face must be 100% identical to the uploaded photo. {prompt}', singleUploader: true, placeholder: 'Tambahkan detail, mis: kemeja putih, tersenyum...' },
     { name: 'Foto Studio (Pasangan)', prompt: 'A professional studio photograph featuring the two individuals from the uploaded images posing together naturally as a couple/pair. The background is a clean, neutral color (e.g., light gray or white). The lighting is soft and flattering for both subjects. The composition should look balanced and authentic. The image is hyper-realistic, 8k, with sharp focus. Critically important: The faces of both individuals must be 100% identical to the source photos. {prompt}', singleUploader: false, placeholder: 'Tambahkan detail, mis: saling berhadapan, gaya kasual...' },
     { name: 'Pre Wedding', prompt: 'Create a hyper-realistic, romantic pre-wedding photograph featuring the two individuals from the uploaded images. Place them in a beautiful setting: {prompt}. The composition should be elegant and intimate. Critically important: The faces of both individuals must be 100% identical to the source photos. The final image should be 8k resolution with cinematic lighting and sharp focus.', singleUploader: false, requiresPrompt: true, placeholder: 'Jelaskan lokasi/tema, mis: di pantai saat senja, gaya Korea...' },
+    { name: 'Pas foto couple', prompt: 'A hand from below holds up two passport-sized photos side-by-side. The photo on the left features the person from the first uploaded image, and the photo on the right features the person from the second uploaded image. Both passport photos have a solid blue background. In their respective photos, both individuals are wearing a clean white shirt. If a woman is depicted and wearing a hijab, the hijab must be black. The main background behind the hand and the passport photos is a beautiful, soft-focus blur of white and pink flowers, creating a gentle and romantic atmosphere. Hyper-realistic, high detail. {prompt}', singleUploader: false, placeholder: 'Tambahkan detail kecil jika diinginkan...' },
     { name: 'Campuran Gambar', prompt: 'Perpaduan artistik dari dua gambar. {prompt}', singleUploader: false },
     { name: 'Pakaian dari Gambar', prompt: 'Kenakan pakaian dari gambar kedua pada orang di gambar pertama. Pertahankan pose, wajah, dan latar belakang orang tersebut, tetapi ganti pakaian mereka. {prompt}', singleUploader: false },
     { name: 'Pose Bersama', prompt: 'Sebuah foto studio tunggal yang fotorealistik. Di dalam foto, orang dari gambar pertama dan orang dari gambar kedua berpose bersama secara alami. Latar belakangnya adalah studio yang bersih dan netral. Fitur wajah kedua individu terjaga sempurna dan 100% identik dengan gambar sumber. {prompt}', singleUploader: false, placeholder: 'Tambahkan detail, mis: di taman kota, gaya kasual...' },
@@ -494,7 +496,7 @@ const App = () => {
     mainUploaderLabel = 'Orang';
     styleUploaderLabel = 'Pakaian';
     blendHelperText = 'Unggah foto orang dan gambar pakaian yang ingin Anda kenakan.';
-  } else if (activeStyle === 'Pose Bersama') {
+  } else if (activeStyle === 'Pose Bersama' || activeStyle === 'Pas foto couple') {
     mainUploaderLabel = 'Orang 1';
     styleUploaderLabel = 'Orang 2';
     blendHelperText = 'Unggah dua foto orang yang berbeda untuk digabungkan.';

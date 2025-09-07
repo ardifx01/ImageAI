@@ -12,7 +12,8 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Missing required field: imagePart' });
   }
 
-  const apiKey = process.env.GOOGLE_API_KEY;
+  // FIX: Use process.env.API_KEY as per coding guidelines.
+  const apiKey = process.env.API_KEY;
   if (!apiKey) {
     return res.status(500).json({ error: 'API key not configured on the server' });
   }

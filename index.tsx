@@ -127,6 +127,28 @@ const AIDescribeIcon = () => (
 
 // --- React Components ---
 
+const Navbar = () => (
+    <nav className="navbar">
+        <div className="navbar-container">
+            <h1>ImageAI IT PALUGADA</h1>
+        </div>
+    </nav>
+);
+
+const Hero = () => (
+    <header className="hero">
+        <div className="hero-container">
+            <h2>Create Powerful Ai Art or Image in seconds.</h2>
+        </div>
+    </header>
+);
+
+const Footer = () => (
+    <footer className="footer">
+        <p>Copyright 2025 - Powered by IT PALUGADA</p>
+    </footer>
+);
+
 interface ImageToolbarProps {
     onDownload: () => void;
     onUseAsInput: () => void;
@@ -274,6 +296,18 @@ const App = () => {
     };
 
     const selectStyle = (selectedStyle: string) => {
+        if (selectedStyle === '+ Super Realistis') {
+            const realisticPhrase = 'super realistic, indistinguishable from a photograph, lifelike textures, natural lighting';
+            setPrompt(prevPrompt => {
+                if (prevPrompt.toLowerCase().includes(realisticPhrase)) {
+                    return prevPrompt; // Avoid duplication
+                }
+                // Add with a comma if prompt is not empty
+                return prevPrompt ? `${prevPrompt}, ${realisticPhrase}` : realisticPhrase;
+            });
+            return; // Exit without changing the active style
+        }
+        
         setStyle(selectedStyle);
         // Reset images if switching to a style that doesn't use them
         if (!['Blend Photos', 'Foto Bersama'].includes(selectedStyle)) {
@@ -340,7 +374,10 @@ const App = () => {
                 setPrompt('luxurious, elegant, opulent, high-end, rich materials like gold and velvet, sophisticated');
                 break;
             case 'Miniature Actionfigure':
-                setPrompt('photo of a miniature action figure, small scale model, diorama setting, tilt-shift effect');
+                setPrompt('Create a 1/7 scale commercial statue (character in the picture) with a realistic style in a real environment. 100% face lock similarity from the uploaded photo. The statue is placed on a computer desk. It has a round transparent acrylic base. Beside the table is a real person in the picture, with life-size and a real person in the picture and statue. Clean the statue carefully with a soft brush. In a modern style studio space with bright lighting. With some toy collections and action figures in the background.');
+                break;
+            case 'Aesthetic candid photography':
+                setPrompt('Aesthetic candid photography, a young man casually on a high sidewalk, with a bus stop behind him after the rain. On the fogged glass of the bus stop, there are vulgar scribbles typical of rebellious youths, written with finger streaks on the mist, such as: “ASU!”, “Woi BABI!”, “Ngentotlah!”, and many more. The young man appears as if he’s waiting for a bus while holding a magazine. The camera also focuses on the reflection in the puddle on the asphalt, clearly showing the mirrored image. The water surface is slightly rippled, with lots of fallen leaves and white flowers, some floating. Foreground: a lush green tree above with white blossoms, along with water splashes caused by something dropping into the puddle. The subject is wearing an oversized black top, necklace, wide relaxed-fit jeans, a wristwatch, and white sneakers. The overall vibe is natural, realistic, with a moody tone, desaturated colors, evoking a melancholic yet aesthetic atmosphere.');
                 break;
             case 'Elegant Hijab Woman':
                 setPrompt('A stunning young woman in a shimmering turquoise hijab and gown stands gracefully on a futuristic glass bridge glowing with ethereal teal light. Her veil sparkles with tiny golden lights like constellations, creating a dreamy, magical aura. The embroidery on her dress is intricate and regal, with delicate lace details that shimmer softly. Behind her, the glass pathway reflects infinite glowing lights, stretching toward towering jagged cliffs illuminated by warm lanterns in the misty distance. The atmosphere feels surreal, cinematic, and enchanting blending elegance, fantasy, and modern architecture. Ultra realistic, highly detailed, soft cinematic lighting, dreamy bokeh, 8K, masterpiece, photorealism');
@@ -604,7 +641,7 @@ const App = () => {
     const styleButtons = [
         'Default', 'Cinematic', 'Anime', 'Watercolor', 'Pixel Art', 'Blend Photos', 'Foto Bersama', 'Ganti Baju', 'Pose',
         'Action Figure', 'Action Figure Neon Lighting', 'Pixar Style', 'Sketsa', 'Ghibli Style', 'Hyper Realistic', 
-        'Hyper Detail', 'Super Realistis', 'Mewah', 'Miniature Actionfigure', 'Elegant Hijab Woman', 'Expand Image'
+        'Hyper Detail', 'Super Realistis', '+ Super Realistis', 'Mewah', 'Miniature Actionfigure', 'Aesthetic candid photography', 'Elegant Hijab Woman', 'Expand Image'
     ];
     
     const showTwoUploders = ['Blend Photos', 'Foto Bersama', 'Ganti Baju', 'Pose'].includes(style);
@@ -650,146 +687,153 @@ const App = () => {
     const uploaderInfo = getUploaderInfo();
 
     return (
-        <div className="app-container">
-            <div className="panel controls-panel">
-                <h2>Controls</h2>
+        <>
+            <Navbar />
+            <main className="main-content">
+                <Hero />
+                <div className="app-container">
+                    <div className="panel controls-panel">
+                        <h2>Controls</h2>
 
-                <div className="control-section">
-                    <h3>1. Original Image</h3>
-                     {showTwoUploders ? (
-                        <div className="blend-uploader-container">
-                            <p className="helper-text">{uploaderInfo.helperText}</p>
-                            <div className="blend-inputs">
-                                <label className="upload-box">
-                                    <span className="upload-box-label">{uploaderInfo.label1}</span>
-                                    <div className="upload-box-content">
-                                        {uploadedImage.url ? (
-                                            <img src={uploadedImage.url} alt={uploaderInfo.label1} className="upload-box-thumbnail" />
-                                        ) : (
-                                            <span className="upload-box-plus">+</span>
-                                        )}
+                        <div className="control-section">
+                            <h3>1. Original Image</h3>
+                             {showTwoUploders ? (
+                                <div className="blend-uploader-container">
+                                    <p className="helper-text">{uploaderInfo.helperText}</p>
+                                    <div className="blend-inputs">
+                                        <label className="upload-box">
+                                            <span className="upload-box-label">{uploaderInfo.label1}</span>
+                                            <div className="upload-box-content">
+                                                {uploadedImage.url ? (
+                                                    <img src={uploadedImage.url} alt={uploaderInfo.label1} className="upload-box-thumbnail" />
+                                                ) : (
+                                                    <span className="upload-box-plus">+</span>
+                                                )}
+                                            </div>
+                                            <input type="file" accept="image/*" onChange={handleImageUpload} />
+                                        </label>
+                                        <label className={`upload-box ${!uploadedImage.file ? 'disabled' : ''}`}>
+                                             <span className="upload-box-label">{uploaderInfo.label2}</span>
+                                            <div className="upload-box-content">
+                                                {uploaderInfo.image2?.url ? (
+                                                    <img src={uploaderInfo.image2.url} alt={uploaderInfo.label2} className="upload-box-thumbnail" />
+                                                ) : (
+                                                    <span className="upload-box-plus">+</span>
+                                                )}
+                                            </div>
+                                            <input type="file" accept="image/*" onChange={uploaderInfo.handler2} disabled={!uploadedImage.file} />
+                                        </label>
                                     </div>
-                                    <input type="file" accept="image/*" onChange={handleImageUpload} />
-                                </label>
-                                <label className={`upload-box ${!uploadedImage.file ? 'disabled' : ''}`}>
-                                     <span className="upload-box-label">{uploaderInfo.label2}</span>
-                                    <div className="upload-box-content">
-                                        {uploaderInfo.image2?.url ? (
-                                            <img src={uploaderInfo.image2.url} alt={uploaderInfo.label2} className="upload-box-thumbnail" />
-                                        ) : (
-                                            <span className="upload-box-plus">+</span>
-                                        )}
+                                </div>
+                            ) : (
+                                <div className="single-uploader-container">
+                                     <div className="upload-main-container">
+                                        {uploadedImage.url && <img id="main-image-thumbnail" src={uploadedImage.url} alt="Uploaded thumbnail" />}
+                                        <label className="upload-btn">
+                                            {uploadedImage.url ? 'Change' : '+ Select'}
+                                            <input type="file" accept="image/*" onChange={handleImageUpload} style={{ display: 'none' }} />
+                                        </label>
                                     </div>
-                                    <input type="file" accept="image/*" onChange={uploaderInfo.handler2} disabled={!uploadedImage.file} />
-                                </label>
+                                </div>
+                            )}
+                        </div>
+
+
+                        <div className="control-section">
+                            <h3>2. Style</h3>
+                            <div className="style-selector">
+                                {styleButtons.map(s => (
+                                    <button key={s} className={`style-button ${style === s ? 'active' : ''}`} onClick={() => selectStyle(s)}>
+                                        {s}
+                                    </button>
+                                ))}
                             </div>
                         </div>
-                    ) : (
-                        <div className="single-uploader-container">
-                             <div className="upload-main-container">
-                                {uploadedImage.url && <img id="main-image-thumbnail" src={uploadedImage.url} alt="Uploaded thumbnail" />}
-                                <label className="upload-btn">
-                                    {uploadedImage.url ? 'Change' : '+ Select'}
-                                    <input type="file" accept="image/*" onChange={handleImageUpload} style={{ display: 'none' }} />
-                                </label>
+
+                        <div className="control-section">
+                            <h3>3. Prompt</h3>
+                            <div className="prompt-container">
+                                <textarea
+                                    id="prompt-input"
+                                    value={prompt}
+                                    onChange={(e) => setPrompt(e.target.value)}
+                                    placeholder="e.g., A cat wearing a superhero cape"
+                                    rows={4}
+                                />
+                                <button 
+                                    className="ai-describe-button" 
+                                    onClick={handleAIDescribe} 
+                                    disabled={!uploadedImage.file || isDescribing || isLoading}
+                                    title="Generate a prompt from the original image"
+                                >
+                                    <AIDescribeIcon />
+                                    {isDescribing ? 'Describing...' : 'AI Describe'}
+                                </button>
                             </div>
                         </div>
-                    )}
-                </div>
+                        
+                         <div className="control-section">
+                            <h3>4. Options</h3>
+                            <div className="options-container">
+                                <div className="option-item">
+                                    <label htmlFor="aspect-ratio">Aspect Ratio</label>
+                                    <select 
+                                        id="aspect-ratio" 
+                                        className="aspect-ratio-select"
+                                        value={aspectRatio}
+                                        onChange={(e) => setAspectRatio(e.target.value)}
+                                        disabled={!uploadedImage.file}
+                                    >
+                                        <option value={`Original (${uploadedImage.aspectRatio})`}>Original ({uploadedImage.aspectRatio})</option>
+                                        <option value="1:1">Square (1:1)</option>
+                                        <option value="16:9">Widescreen (16:9)</option>
+                                        <option value="9:16">Portrait (9:16)</option>
+                                        <option value="4:3">Landscape (4:3)</option>
+                                        <option value="3:4">Vertical (3:4)</option>
+                                    </select>
+                                </div>
+                                <div className="option-item checkbox-group">
+                                    <div className="checkbox-container">
+                                        <input type="checkbox" id="lock-face" checked={lockFace} onChange={(e) => setLockFace(e.target.checked)} />
+                                        <label htmlFor="lock-face">Lock Face (100%)</label>
+                                    </div>
+                                    <div className="checkbox-container">
+                                        <input type="checkbox" id="preserve-subject" checked={preserveSubject} onChange={(e) => setPreserveSubject(e.target.checked)} />
+                                        <label htmlFor="preserve-subject">Preserve Subject</label>
+                                    </div>
+                                    <div className="checkbox-container">
+                                        <input type="checkbox" id="preserve-scene" checked={preserveScene} onChange={(e) => setPreserveScene(e.target.checked)} />
+                                        <label htmlFor="preserve-scene">Preserve Scene</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
-
-                <div className="control-section">
-                    <h3>2. Style</h3>
-                    <div className="style-selector">
-                        {styleButtons.map(s => (
-                            <button key={s} className={`style-button ${style === s ? 'active' : ''}`} onClick={() => selectStyle(s)}>
-                                {s}
-                            </button>
-                        ))}
-                    </div>
-                </div>
-
-                <div className="control-section">
-                    <h3>3. Prompt</h3>
-                    <div className="prompt-container">
-                        <textarea
-                            id="prompt-input"
-                            value={prompt}
-                            onChange={(e) => setPrompt(e.target.value)}
-                            placeholder="e.g., A cat wearing a superhero cape"
-                            rows={4}
-                        />
-                        <button 
-                            className="ai-describe-button" 
-                            onClick={handleAIDescribe} 
-                            disabled={!uploadedImage.file || isDescribing || isLoading}
-                            title="Generate a prompt from the original image"
-                        >
-                            <AIDescribeIcon />
-                            {isDescribing ? 'Describing...' : 'AI Describe'}
+                        <button className="transform-button" onClick={handleTransform} disabled={isLoading || isDescribing || !uploadedImage.file}>
+                            {isLoading ? 'Generating...' : 'Transform Image'}
                         </button>
+                        {error && <p className="error-message">{error}</p>}
+                    </div>
+
+                    <div className="panel image-panel">
+                        <h3>Original</h3>
+                        <ImagePlaceholder
+                            image={uploadedImage}
+                            isLoading={false}
+                            onImageUpload={handleImageUpload}
+                            isOriginal={true}
+                            onDownload={handleOriginalDownload}
+                        />
+                    </div>
+
+                    <div className="panel image-panel">
+                        <h3>Generated</h3>
+                        <ImagePlaceholder image={generatedImage} isLoading={isLoading} onImageUpload={() => {}} toolbarActions={toolbarActions} />
                     </div>
                 </div>
-                
-                 <div className="control-section">
-                    <h3>4. Options</h3>
-                    <div className="options-container">
-                        <div className="option-item">
-                            <label htmlFor="aspect-ratio">Aspect Ratio</label>
-                            <select 
-                                id="aspect-ratio" 
-                                className="aspect-ratio-select"
-                                value={aspectRatio}
-                                onChange={(e) => setAspectRatio(e.target.value)}
-                                disabled={!uploadedImage.file}
-                            >
-                                <option value={`Original (${uploadedImage.aspectRatio})`}>Original ({uploadedImage.aspectRatio})</option>
-                                <option value="1:1">Square (1:1)</option>
-                                <option value="16:9">Widescreen (16:9)</option>
-                                <option value="9:16">Portrait (9:16)</option>
-                                <option value="4:3">Landscape (4:3)</option>
-                                <option value="3:4">Vertical (3:4)</option>
-                            </select>
-                        </div>
-                        <div className="option-item checkbox-group">
-                            <div className="checkbox-container">
-                                <input type="checkbox" id="lock-face" checked={lockFace} onChange={(e) => setLockFace(e.target.checked)} />
-                                <label htmlFor="lock-face">Lock Face (100%)</label>
-                            </div>
-                            <div className="checkbox-container">
-                                <input type="checkbox" id="preserve-subject" checked={preserveSubject} onChange={(e) => setPreserveSubject(e.target.checked)} />
-                                <label htmlFor="preserve-subject">Preserve Subject</label>
-                            </div>
-                            <div className="checkbox-container">
-                                <input type="checkbox" id="preserve-scene" checked={preserveScene} onChange={(e) => setPreserveScene(e.target.checked)} />
-                                <label htmlFor="preserve-scene">Preserve Scene</label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <button className="transform-button" onClick={handleTransform} disabled={isLoading || isDescribing || !uploadedImage.file}>
-                    {isLoading ? 'Generating...' : 'Transform Image'}
-                </button>
-                {error && <p className="error-message">{error}</p>}
-            </div>
-
-            <div className="panel image-panel">
-                <h3>Original</h3>
-                <ImagePlaceholder
-                    image={uploadedImage}
-                    isLoading={false}
-                    onImageUpload={handleImageUpload}
-                    isOriginal={true}
-                    onDownload={handleOriginalDownload}
-                />
-            </div>
-
-            <div className="panel image-panel">
-                <h3>Generated</h3>
-                <ImagePlaceholder image={generatedImage} isLoading={isLoading} onImageUpload={() => {}} toolbarActions={toolbarActions} />
-            </div>
-        </div>
+            </main>
+            <Footer />
+        </>
     );
 };
 

@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, useRef } from 'react';
 import { createRoot } from 'react-dom/client';
 import type { Part } from "@google/genai"; // Hanya menggunakan tipe, bukan seluruh library
@@ -122,6 +121,14 @@ const styles = [
     { name: 'Cinematic candid', prompt: 'Cinematic candid photography with a blend of Matte Film Look preset, Soft Fade Shadows, and subtle grain effect. Featuring a handsome young man like the attached reference photo. He stands cool and relaxed in the golden savanna of Wairinding, Sumba. His body faces slightly sideways, one hand in his pants pocket while the other tosses a traveler tumbler into the air. The tumbler is blurred, spinning above his hand. Outfit: oversized cream linen shirt, loose khaki pants, classic white sneakers, and a sporty watch. He has a high-end Canon camera slung around his neck. The shot is taken from a low angle hidden behind the tall wild savanna grass, with slightly blurred grass in the foreground creating dreamy depth and a natural frame on the side of the frame. The subject and spinning tumbler are in sharp focus, with the background of golden savanna hills and soft blue sky. Warm late-afternoon light gently illuminates the scene, giving pastel tones with faded highlights and softly fading shadows, creating a cinematic, dreamy, and timeless atmosphere. {prompt}', singleUploader: true },
     { name: 'Selfie with Artist', prompt: 'Make it so that I am taking a selfie with {prompt} a backstage concert in America. Make the natural lighting photo', singleUploader: true, requiresPrompt: true, placeholder: 'Sebutkan nama artis, misalnya: Taylor Swift' },
     { name: 'Gantungan Kunci', prompt: 'Buat gantungan kunci figur karet 1:10, dengan jari-jari memegangnya. Latar belakang buram, tali gantungan kunci karet {prompt}', singleUploader: true, requiresPrompt: true, placeholder: 'Isi detailnya, misalnya: berwarna biru dengan tulisan \'BALI\' putih' },
+    { name: 'Action Figure with Maker', prompt: 'Create a 1/7 scale commercialized figurine of (the character in the picture) , realistic style, in a real environment. Figurine placed on a computer desk. has a round transparent acrylic base. Next to the desk is the real person in the picture, in the real life size with the same attire as in the picture and the figurine, cleaning the figurine carefully with a fine brush. in a modern styled studio room, brightly lit. With some collection of toys and action figures in the background. {prompt}', singleUploader: true, placeholder: 'Tambahkan detail kecil jika diinginkan...' },
+    { name: 'Hyper Realistic', prompt: 'Enhance this image to be hyper-realistic. Improve the lighting, sharpen the details, and make the textures appear more lifelike, as if it were a high-resolution photograph. {prompt}', singleUploader: true, placeholder: 'Tambahkan detail kecil jika diinginkan...' },
+    { name: 'Miniature Action figure', prompt: 'Create a 1/7 scale commercial statue (character in the picture) with a realistic style in a real environment. 100% face lock similarity from the uploaded photo. The statue is placed on a computer desk. It has a round transparent acrylic base. Beside the table is a real person in the picture, with life-size and a real person in the picture and statue. Clean the statue carefully with a soft brush. In a modern style studio space with bright lighting. With some toy collections and action figures in the background. {prompt}', singleUploader: true, placeholder: 'Tambahkan detail kecil jika diinginkan...' },
+    { name: 'Super Realistic', prompt: "Critically important: Do not change the person's face or identity at all. The final result must be 100% identical to the original person. Enhance this image to be super-realistic. Sharpen details, refine lighting and shadows, improve skin texture, and make it look like an ultra-high-resolution, professionally shot photograph. The goal is maximum realism without altering the subject's core features. {prompt}", singleUploader: true, placeholder: 'Tambahkan detail kecil jika diinginkan...' },
+    { name: 'Mewah', prompt: "Hands in Pockets – Relaxed Authority. A hyper-realistic, cinematic editorial portrait of the person being uploaded (keep the face 100%). They stand upright in a dark, gloomy studio, surrounded by billowing smoke under dramatic lighting. Clothing: As per the uploaded reference photo. Both hands are casually tucked into their pockets, shoulders relaxed, a confident expression, and the head is slightly tilted. Make it hyper-realistic, 8k, sharp focus, detailed textures, cinematic lighting. {prompt}", singleUploader: true, placeholder: 'Tambahkan detail kecil jika diinginkan...' },
+    { name: 'Diorama', prompt: "A hyper-realistic, high-quality photograph of a miniature diorama. The diorama is a 100% accurate replica of the building and its surroundings from the uploaded photo, capturing every architectural detail, texture, and color. It's built with realistic materials like 3D-printed resin and acrylic, with detailed landscaping using miniature moss and sand. Warm, inviting miniature LED lights create a deep, atmospheric scene. The entire diorama is elegantly displayed on a luxurious marble table against a plain, soft, warm-colored background. The overall image has high contrast and sharp focus. Critically important: Any visible text from the original photo must be perfectly replicated. {prompt}", singleUploader: true, placeholder: 'Tambahkan detail kecil jika diinginkan...' },
+    { name: 'Enhance Picture', prompt: 'Enhance this picture to improve its overall quality. Increase sharpness, clarity, and vibrancy of colors, and improve the lighting without changing the original content or style. Make it look like a professionally remastered high-resolution photo. {prompt}', singleUploader: true, placeholder: 'Tambahkan detail kecil jika diinginkan...' },
+    { name: 'Monokrom Luxuri', prompt: "Use the face in this photo for a black-and-white studio shoot, showcasing 100% similarity in facial features and style to the uploaded photo. The lighting is soft and minimalist, creating sharp shadows and a moody atmosphere. The pose is relaxed, leaning slightly with one arm on the back of the chair, her face turned to the side. The background is plain, with a simple, modern aesthetic. Create hyperrealism, 8K, sharp focus, detailed textures, and cinematic lighting. {prompt}", singleUploader: true, placeholder: 'Tambahkan detail kecil jika diinginkan...' },
     { name: 'Campuran Gambar', prompt: 'Perpaduan artistik dari dua gambar. {prompt}', singleUploader: false },
     { name: 'Pakaian dari Gambar', prompt: 'Kenakan pakaian dari gambar kedua pada orang di gambar pertama. Pertahankan pose, wajah, dan latar belakang orang tersebut, tetapi ganti pakaian mereka. {prompt}', singleUploader: false },
 ];
@@ -215,7 +222,11 @@ const App = () => {
 
     } catch (e: any) {
         console.error('Error in handleDescribe:', e);
-        setError(`Deskripsi gagal: ${e.message}`);
+        if (e.message && (e.message.includes('429') || e.message.toUpperCase().includes('RESOURCE_EXHAUSTED'))) {
+            setError("Batas penggunaan AI tercapai. Silakan tunggu sebentar lalu coba lagi.");
+        } else {
+            setError(`Deskripsi gagal: ${e.message}`);
+        }
     } finally {
         setIsDescribeLoading(false);
     }
@@ -286,6 +297,8 @@ const App = () => {
         console.error('Error in generateImage:', e);
         if (e.name === 'AbortError') {
             setError("Pembuatan gagal: Permintaan memakan waktu terlalu lama (timeout). Ini mungkin karena beban server yang tinggi atau batasan platform hosting. Coba lagi nanti.");
+        } else if (e.message && (e.message.includes('429') || e.message.toUpperCase().includes('RESOURCE_EXHAUSTED'))) {
+            setError("Batas penggunaan AI tercapai. Ini biasa terjadi saat ada banyak permintaan. Silakan tunggu satu menit lalu coba lagi.");
         } else {
             setError(`Pembuatan gagal: ${e.message}`);
         }

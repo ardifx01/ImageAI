@@ -28,23 +28,19 @@ const addWatermark = (imageUrl: string): Promise<string> => {
       // 1. Gambar gambar asli
       ctx.drawImage(img, 0, 0);
 
-      // 2. Konfigurasi teks watermark
-      const padding = 20; // Padding dari tepi
-      // Ukuran font dinamis berdasarkan lebar gambar, dengan min/max
-      const fontSize = Math.max(12, Math.min(img.width / 40, 48)); 
-      ctx.font = `bold ${fontSize}px Poppins`;
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.6)'; // Putih dengan opasitas 60%
+      // 2. Konfigurasi teks watermark minimalis
+      const padding = 15; // Padding dari tepi
+      // Ukuran font yang lebih kecil dan dinamis
+      const fontSize = Math.max(10, Math.min(img.width / 60, 24));
+      ctx.font = `${fontSize}px Poppins`; // Hapus 'bold' untuk tampilan lebih tipis
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.4)'; // Lebih transparan
       ctx.textAlign = 'right';
       ctx.textBaseline = 'bottom';
 
-      // 3. Tambahkan bayangan halus untuk keterbacaan yang lebih baik
-      ctx.shadowColor = 'rgba(0, 0, 0, 0.7)';
-      ctx.shadowBlur = 5;
-      ctx.shadowOffsetX = 2;
-      ctx.shadowOffsetY = 2;
+      // 3. Hapus bayangan untuk tampilan yang lebih bersih dan minimalis
 
-      // 4. Gambar teks
-      ctx.fillText('Ai By IT PALUGADA', canvas.width - padding, canvas.height - padding);
+      // 4. Gambar teks yang diperbarui
+      ctx.fillText('IT PALUGADA', canvas.width - padding, canvas.height - padding);
 
       // 5. Selesaikan dengan URL data baru
       resolve(canvas.toDataURL('image/png'));

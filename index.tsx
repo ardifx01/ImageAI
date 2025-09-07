@@ -347,6 +347,9 @@ const App = () => {
             case 'Pose':
                 setPrompt("Goal: Apply the pose from the second image (pose reference) to the character in the first image (subject).\n\nInstructions: Redraw the subject from the first image, making them adopt the exact pose of the person in the second image. The final image must keep the original subject's appearance, clothing, and background, but change their pose to match the reference. Faithfully copy the limb positions, body angle, and orientation from the reference pose.");
                 break;
+            case 'Ganti Rambut':
+                setPrompt('Change the hair of the person in the image to [DESCRIBE NEW HAIR STYLE HERE, e.g., long and wavy, short pixie cut, bright pink]. Keep the person\'s face, clothing, and the background the same.');
+                break;
             case 'Action Figure':
                 setPrompt('photo of a detailed action figure, plastic toy, articulated joints, miniature scale');
                 break;
@@ -618,7 +621,7 @@ const App = () => {
     };
 
     const styleButtons = [
-        'Default', 'Cinematic', 'Anime', 'Watercolor', 'Pixel Art', 'Blend Photos', 'Foto Bersama', 'Ganti Baju', 'Pose',
+        'Default', 'Cinematic', 'Anime', 'Watercolor', 'Pixel Art', 'Blend Photos', 'Foto Bersama', 'Ganti Baju', 'Pose', 'Ganti Rambut',
         'Action Figure', 'Action Figure Neon Lighting', 'Pixar Style', 'Sketsa', 'Ghibli Style', 'Hyper Realistic', 
         'Hyper Detail', 'Super Realistis', '+ Super Realistis', 'Mewah', 'Miniature Actionfigure', 'Aesthetic candid photography', 'Elegant Hijab Woman', 'Expand Image'
     ];

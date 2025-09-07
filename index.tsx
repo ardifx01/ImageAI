@@ -217,6 +217,7 @@ const loadingMessages = [
 const App = () => {
   // Variabel state
   const [prompt, setPrompt] = useState<string>('');
+  const [additionalPrompt, setAdditionalPrompt] = useState<string>('');
   const [mainImage, setMainImage] = useState<File | null>(null);
   const [styleImage, setStyleImage] = useState<File | null>(null);
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
@@ -310,6 +311,7 @@ const App = () => {
     // Menghapus placeholder {prompt} agar pengguna bisa langsung menambahkan detail.
     const displayPrompt = style.prompt.replace('{prompt}', '').trim();
     setPrompt(displayPrompt);
+    setAdditionalPrompt(''); // Reset prompt tambahan
   };
 
   const handleDescribe = async () => {
@@ -340,6 +342,7 @@ const App = () => {
         const data = await response.json();
         if (data.description) {
           setPrompt(data.description);
+          setAdditionalPrompt(''); // Reset prompt tambahan
         } else {
           setError("AI tidak dapat menghasilkan deskripsi untuk gambar ini.");
         }
@@ -378,9 +381,14 @@ const App = () => {
     const timeoutId = setTimeout(() => controller.abort(), 60000); // Batas waktu 60 detik
 
     try {
-        // Prompt dari textarea sekarang adalah sumber kebenaran utama.
-        // Kita masih perlu mengganti placeholder {aspectRatio} jika ada.
-        let finalPrompt = prompt.replace('{aspectRatio}', aspectRatio);
+        // Gabungkan prompt utama dengan prompt tambahan
+        let finalPrompt = prompt;
+        if (additionalPrompt.trim() !== '') {
+            finalPrompt = `${finalPrompt.trim()}. ${additionalPrompt.trim()}`;
+        }
+        
+        // Ganti placeholder rasio aspek
+        finalPrompt = finalPrompt.replace('{aspectRatio}', aspectRatio);
 
         // Tambahkan instruksi penguncian wajah jika diaktifkan
         if (isFaceLocked) {
@@ -479,10 +487,14 @@ const App = () => {
   };
 
   const copyPromptToClipboard = useCallback(() => {
-    if (prompt) {
-        navigator.clipboard.writeText(prompt);
+    let fullPrompt = prompt;
+    if (additionalPrompt.trim() !== '') {
+        fullPrompt = `${fullPrompt.trim()}. ${additionalPrompt.trim()}`;
     }
-  }, [prompt]);
+    if (fullPrompt) {
+        navigator.clipboard.writeText(fullPrompt);
+    }
+  }, [prompt, additionalPrompt]);
 
   const currentStyle = styles.find(s => s.name === activeStyle) || styles[0];
   const isBlendMode = !currentStyle.singleUploader;
@@ -592,6 +604,7 @@ const App = () => {
                     <div className="prompt-container">
                     <textarea
                         id="prompt-input"
+                        className="prompt-textarea"
                         value={prompt}
                         onChange={(e) => setPrompt(e.target.value)}
                         placeholder={
@@ -613,6 +626,20 @@ const App = () => {
                     </button>
                     </div>
                 </div>
+                
+                {/* --- Input Prompt Tambahan --- */}
+                <div className="control-section">
+                    <h3>Ide Tambahan (Opsional)</h3>
+                    <textarea
+                        id="additional-prompt-input"
+                        className="prompt-textarea"
+                        value={additionalPrompt}
+                        onChange={(e) => setAdditionalPrompt(e.target.value)}
+                        placeholder="Tambahkan ide lain... mis: tambahkan seekor kucing, ubah latar menjadi pantai"
+                        rows={3}
+                    />
+                </div>
+
 
                 {/* --- Opsi --- */}
                 <div className="control-section">

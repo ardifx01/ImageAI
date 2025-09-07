@@ -281,7 +281,7 @@ body {
     gap: 10px;
 }
 
-#prompt-input {
+.prompt-textarea {
   width: 100%;
   background-color: var(--input-background);
   border: 1px solid var(--glass-border);
@@ -294,7 +294,7 @@ body {
   transition: all 0.3s ease;
 }
 
-#prompt-input:focus {
+.prompt-textarea:focus {
   outline: none;
   border-color: var(--highlight-color);
   box-shadow: 0 0 10px var(--highlight-color);

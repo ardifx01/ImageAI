@@ -1,4 +1,3 @@
-
 import { GoogleGenAI, Modality } from "@google/genai";
 
 // Menonaktifkan peringatan eksperimental jika perlu, meskipun lebih baik untuk menanganinya dengan benar
@@ -40,24 +39,15 @@ export default async function handler(req, res) {
   }
 
   try {
-    // --- Logika Pemilihan Model & Konfigurasi ---
-    const isMultiImageRequest = imageParts.length > 1;
-    
-    // Pilih model berdasarkan jumlah gambar
-    const modelName = isMultiImageRequest 
-      ? 'gemini-2.5-flash' // Model serbaguna untuk multi-gambar
-      : 'gemini-2.5-flash-image-preview'; // Model yang dioptimalkan untuk pengeditan satu gambar
+    // --- Logika Model & Konfigurasi yang Diperbaiki ---
+    // SELALU gunakan 'gemini-2.5-flash-image-preview' untuk semua tugas pengeditan/pembuatan gambar di aplikasi ini.
+    // Ini adalah model yang benar untuk permintaan gambar tunggal dan multi-gambar.
+    const modelName = 'gemini-2.5-flash-image-preview';
 
-    // Mulai dengan konfigurasi dasar yang memaksa output gambar
+    // Konfigurasi ini memaksa AI untuk selalu menghasilkan output gambar.
     const modelConfig = {
       responseModalities: [Modality.IMAGE, Modality.TEXT],
     };
-
-    // **Optimisasi Kecepatan**: Jika ini adalah permintaan multi-gambar yang kompleks,
-    // nonaktifkan "thinking budget" untuk mendapatkan respons lebih cepat.
-    if (isMultiImageRequest) {
-        modelConfig.thinkingConfig = { thinkingBudget: 0 };
-    }
     // ------------------------------------
 
     const ai = new GoogleGenAI({ apiKey });
@@ -111,6 +101,8 @@ export default async function handler(req, res) {
 
   } catch (error) {
     console.error('Error calling Gemini API:', error);
-    res.status(500).json({ error: `Failed to generate content: ${error.message}` });
+    // Memberikan pesan galat yang lebih detail ke klien
+    const detailedError = error.message || "An unknown error occurred";
+    res.status(500).json({ error: `Failed to generate content: ${detailedError}` });
   }
 }

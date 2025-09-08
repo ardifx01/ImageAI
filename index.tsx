@@ -312,6 +312,7 @@ const App = () => {
   const [isDescribeLoading, setIsDescribeLoading] = useState<boolean>(false);
   const [loadingMessage, setLoadingMessage] = useState<string>(loadingMessages[0]);
   const [removeWatermark, setRemoveWatermark] = useState<boolean>(false);
+  const [rateLimitCooldown, setRateLimitCooldown] = useState<number>(0);
   
   // Ref untuk input file
   const mainImageInputRef = useRef<HTMLInputElement>(null);
@@ -335,6 +336,17 @@ const App = () => {
       }
     };
   }, [isLoading]);
+
+  // Efek untuk menangani hitungan mundur batas penggunaan
+  useEffect(() => {
+    if (rateLimitCooldown > 0) {
+      const timerId = setTimeout(() => {
+        setRateLimitCooldown(prev => (prev > 0 ? prev - 1 : 0));
+      }, 1000);
+      return () => clearTimeout(timerId);
+    }
+  }, [rateLimitCooldown]);
+
 
   // --- Handler ---
 
@@ -431,7 +443,8 @@ const App = () => {
     } catch (e: any) {
         console.error('Error in handleDescribe:', e);
         if (e.message && (e.message.includes('429') || e.message.toUpperCase().includes('RESOURCE_EXHAUSTED'))) {
-            setError("Batas penggunaan AI tercapai. Silakan tunggu satu menit lalu coba lagi.");
+            setError('');
+            setRateLimitCooldown(60);
         } else {
             setError(`Deskripsi gagal: ${e.message}`);
         }
@@ -539,7 +552,8 @@ const App = () => {
         if (e.name === 'AbortError') {
             setError("Pembuatan gagal: Permintaan memakan waktu terlalu lama (timeout). Ini mungkin karena beban server yang tinggi atau batasan platform hosting. Coba lagi nanti.");
         } else if (e.message && (e.message.includes('429') || e.message.toUpperCase().includes('RESOURCE_EXHAUSTED'))) {
-            setError("Batas penggunaan AI tercapai. Ini biasa terjadi saat ada banyak permintaan. Silakan tunggu satu menit lalu coba lagi.");
+            setError('');
+            setRateLimitCooldown(60);
         } else {
             setError(`Pembuatan gagal: ${e.message}`);
         }
@@ -715,7 +729,7 @@ const App = () => {
                      <button 
                         className="ai-describe-button" 
                         onClick={handleDescribe}
-                        disabled={isDescribeLoading || !mainImage}
+                        disabled={isDescribeLoading || !mainImage || rateLimitCooldown > 0}
                         aria-label="Hasilkan deskripsi dari gambar"
                      >
                         {isDescribeLoading ? <span className="spinner-small"></span> : <DescribeIcon />}
@@ -792,11 +806,16 @@ const App = () => {
                 <button
                     className="transform-button"
                     onClick={generateImage}
-                    disabled={isLoading || (currentStyle.requiresPrompt && !additionalPrompt.trim() && !prompt.trim().replace(currentStyle.prompt.replace('{prompt}', '').trim(), ''))}
+                    disabled={isLoading || rateLimitCooldown > 0 || (currentStyle.requiresPrompt && !additionalPrompt.trim() && !prompt.trim().replace(currentStyle.prompt.replace('{prompt}', '').trim(), ''))}
                     >
-                    {isLoading ? 'Membuat...' : 'Transformasi'}
+                    {isLoading ? 'Membuat...' : rateLimitCooldown > 0 ? `Tunggu (${rateLimitCooldown}s)` : 'Transformasi'}
                 </button>
-                {error && <p className="error-message">{error}</p>}
+                {rateLimitCooldown > 0 && (
+                    <p className="error-message">
+                        Batas penggunaan AI tercapai. Silakan coba lagi dalam {rateLimitCooldown} detik.
+                    </p>
+                )}
+                {error && !rateLimitCooldown && <p className="error-message">{error}</p>}
                 </aside>
                 
                 <section className="image-panel panel">

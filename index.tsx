@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import type { Part } from "@google/genai"; // Hanya menggunakan tipe, bukan seluruh library
@@ -811,9 +810,10 @@ const App = () => {
                     {isLoading ? 'Membuat...' : rateLimitCooldown > 0 ? `Tunggu (${rateLimitCooldown}s)` : 'Transformasi'}
                 </button>
                 {rateLimitCooldown > 0 && (
-                    <p className="error-message">
-                        Batas penggunaan AI tercapai. Silakan coba lagi dalam {rateLimitCooldown} detik.
-                    </p>
+                    <div className="cooldown-message">
+                        <p>Layanan sedang sibuk. Coba lagi dalam <strong>{rateLimitCooldown}</strong> detik.</p>
+                        <div className="cooldown-progress-bar" style={{ width: `${(60 - rateLimitCooldown) / 60 * 100}%` }}></div>
+                    </div>
                 )}
                 {error && !rateLimitCooldown && <p className="error-message">{error}</p>}
                 </aside>

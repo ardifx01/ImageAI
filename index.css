@@ -439,6 +439,35 @@ body {
   border: 1px solid var(--error-color);
 }
 
+.cooldown-message {
+  color: var(--highlight-color);
+  margin-top: 15px;
+  text-align: center;
+  font-size: 0.9rem;
+  background-color: rgba(0, 191, 255, 0.1);
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid var(--highlight-color);
+  position: relative;
+  overflow: hidden;
+}
+
+.cooldown-message p {
+    position: relative;
+    z-index: 1;
+    margin: 0;
+}
+
+.cooldown-progress-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 100%;
+    background-color: rgba(0, 191, 255, 0.2);
+    transition: width 1s linear;
+    z-index: 0;
+}
+
 .image-panel {
   flex: 1 1 0;
   display: flex;

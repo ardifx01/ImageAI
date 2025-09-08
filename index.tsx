@@ -222,10 +222,18 @@ const styles = [
     { name: 'Jadi Aestetik', prompt: 'Transform this photo into an aesthetic masterpiece. Apply soft, dreamy lighting, a pleasing and harmonious color palette, and improve the composition. Enhance the overall mood to be visually captivating while keeping the original subject and context intact. {prompt}', singleUploader: true, placeholder: 'Tambahkan detail, mis: nuansa senja, palet warna pastel...' },
     { name: 'Monochrome for Man', prompt: 'Foto monokrom profil samping seorang pria, cahaya menyoroti tepi rambut dan wajah, latar belakang gelap, menonjolkan siluet. {prompt}', singleUploader: true },
     { name: 'Monochrome for woman', prompt: 'Foto monokrom profil samping seorang wanita, cahaya menyoroti tepi rambut dan wajah, latar belakang gelap, menonjolkan siluet. {prompt}', singleUploader: true },
+    { name: 'Casual Man', prompt: 'A confident young man stands with his hands on his waist, smiling warmly at the camera. He wears a crisp white shirt with rolled-up sleeves and a sleek black tie, paired with black trousers. The minimal gray background enhances the focus on his relaxed yet professional presence. Perfect for a wallpaper that radiates positivity, charm, and casual sophistication. {prompt}', singleUploader: true },
+    { name: 'Casual Woman', prompt: 'A confident young woman stands with her hands on her waist, smiling warmly at the camera. She wears a crisp white shirt with rolled-up sleeves and a sleek black tie, paired with black trousers. The minimal gray background enhances the focus on her relaxed yet professional presence. Perfect for a wallpaper that radiates positivity, charm, and casual sophistication. {prompt}', singleUploader: true },
+    { name: 'Haute Couture', prompt: 'Haute couture fashion photography style. The subject wears an avant-garde, sculptural gown with intricate details. The setting is dramatic and architectural, with bold lighting that creates deep shadows and highlights. The pose is artistic and statuesque. Hyper-realistic, 8k, sharp focus. {prompt}', singleUploader: true, placeholder: 'Tambahkan detail, misal: gaun merah, di dalam museum modern...' },
+    { name: 'Street Style', prompt: 'Candid street style photography. The subject is captured mid-stride on a bustling city street, wearing a trendy, layered outfit. The lighting is natural and dynamic, reflecting the urban environment. The photo has a spontaneous, energetic feel, like a shot by a famous street style photographer. {prompt}', singleUploader: true, placeholder: 'Tambahkan detail, misal: di Tokyo, mengenakan jaket bomber...' },
+    { name: 'Editorial Fashion', prompt: 'Editorial fashion magazine style. Create a narrative-driven image with a strong concept. The subject\'s pose is expressive and unconventional. The lighting is highly stylized (e.g., colored gels, dramatic key light) and the composition is artistic. The overall mood is sophisticated and thought-provoking. {prompt}', singleUploader: true, placeholder: 'Tambahkan detail, misal: tema surealis, pencahayaan neon...' },
+    { name: 'Minimalist Fashion', prompt: 'Minimalist fashion aesthetic. The subject wears a chic, monochrome outfit with clean lines and simple silhouettes. The background is a solid, neutral color or a very simple architectural space. The lighting is soft and even. The focus is entirely on the form and texture of the clothing. {prompt}', singleUploader: true, placeholder: 'Tambahkan detail, misal: setelan serba putih, latar belakang abu-abu...' },
+    { name: 'Bohemian Fashion', prompt: 'Bohemian (boho) fashion style. The subject wears a flowy maxi dress with floral prints or crochet details. They are in a beautiful, natural setting like a sun-drenched field or a rustic beach during golden hour. The mood is free-spirited, relaxed, and romantic. Soft, warm lighting. {prompt}', singleUploader: true, placeholder: 'Tambahkan detail, misal: di padang bunga, mengenakan topi lebar...' },
     { name: 'Cinematic Portrait in Train (Man)', prompt: 'A cinematic portrait of a young man sitting by a train window at night, wearing a dark hoodie. Neon city lights reflect on the glass, creating colorful bokeh in shades of orange, pink, and blue. His face is softly illuminated by the glow. High detail, filmic lighting, cyberpunk atmosphere, shallow depth of field. {prompt}', singleUploader: true, placeholder: 'Tambahkan detail kecil jika diinginkan...' },
     { name: 'Cinematic Portrait in Train (Woman)', prompt: 'A cinematic portrait of a young woman sitting by a train window at night, wearing a dark hoodie. Neon city lights reflect on the glass, creating colorful bokeh in shades of orange, pink, and blue. Her face is softly illuminated by the glow. High detail, filmic lighting, cyberpunk atmosphere, shallow depth of field. {prompt}', singleUploader: true, placeholder: 'Tambahkan detail kecil jika diinginkan...' },
     { name: 'Cinematic candid', prompt: 'Cinematic candid photography with a blend of Matte Film Look preset, Soft Fade Shadows, and subtle grain effect. Featuring a handsome young man like the attached reference photo. He stands cool and relaxed in the golden savanna of Wairinding, Sumba. His body faces slightly sideways, one hand in his pants pocket while the other tosses a traveler tumbler into the air. The tumbler is blurred, spinning above his hand. Outfit: oversized cream linen shirt, loose khaki pants, classic white sneakers, and a sporty watch. He has a high-end Canon camera slung around his neck. The shot is taken from a low angle hidden behind the tall wild savanna grass, with slightly blurred grass in the foreground creating dreamy depth and a natural frame on the side of the frame. The subject and spinning tumbler are in sharp focus, with the background of golden savanna hills and soft blue sky. Warm late-afternoon light gently illuminates the scene, giving pastel tones with faded highlights and softly fading shadows, creating a cinematic, dreamy, and timeless atmosphere. {prompt}', singleUploader: true },
     { name: 'Selfie with Artist', prompt: 'Make it so that I am taking a selfie with {prompt} a backstage concert in America. Make the natural lighting photo', singleUploader: true, requiresPrompt: true, placeholder: 'Sebutkan nama artis, misalnya: Taylor Swift' },
+    { name: 'Selfie with SuperHero', prompt: 'A hyper-realistic 8K cinematic image of a person (attached image) wearing casual clothes with "AVENGERS" written on them, smiling and holding a smartphone (Samsung S25 Pro) while taking a selfie with the Avengers. The Avengers team (Iron Man, Captain America, Thor, Hulk, Black Widow, and Hawkeye) pose cheerfully around him, some with playful gestures. The background is a temple with a large banyan tree and a pond surrounding it. The scene is bright, dynamic, and fun, with vibrant colors, sharp details, and realistic lighting. The style should be photographic, with natural facial expressions and a sleek, cinematic quality. Be sure to replicate the faces in the photo and make it realistic. {prompt}', singleUploader: true, placeholder: 'Tambahkan detail kecil jika diinginkan...' },
     { name: 'Gantungan Kunci', prompt: 'Buat gantungan kunci figur karet 1:10, dengan jari-jari memegangnya. Latar belakang buram, tali gantungan kunci karet {prompt}', singleUploader: true, requiresPrompt: true, placeholder: 'Isi detailnya, misalnya: berwarna biru dengan tulisan \'BALI\' putih' },
     { name: 'Action Figure with Maker', prompt: 'Create a 1/7 scale commercialized figurine of (the character in the picture) , realistic style, in a real environment. Figurine placed on a computer desk. has a round transparent acrylic base. Next to the desk is the real person in the picture, in the real life size with the same attire as in the picture and the figurine, cleaning the figurine carefully with a fine brush. in a modern styled studio room, brightly lit. With some collection of toys and action figures in the background. {prompt}', singleUploader: true, placeholder: 'Tambahkan detail kecil jika diinginkan...' },
     { name: 'Hyper Realistic', prompt: 'Enhance this image to be hyper-realistic. Improve the lighting, sharpen the details, and make the textures appear more lifelike, as if it were a high-resolution photograph. {prompt}', singleUploader: true, placeholder: 'Tambahkan detail kecil jika diinginkan...' },
@@ -260,6 +268,11 @@ const styles = [
     { name: 'Pakaian dari Gambar', prompt: 'Kenakan pakaian dari gambar kedua pada orang di gambar pertama. Pertahankan pose, wajah, dan latar belakang orang tersebut, tetapi ganti pakaian mereka. {prompt}', singleUploader: false },
     { name: 'Pose Bersama', prompt: 'Sebuah foto studio tunggal yang fotorealistik. Di dalam foto, orang dari gambar pertama dan orang dari gambar kedua berpose bersama secara alami. Latar belakangnya adalah studio yang bersih dan netral. Fitur wajah kedua individu terjaga sempurna dan 100% identik dengan gambar sumber. {prompt}', singleUploader: false, placeholder: 'Tambahkan detail, mis: di taman kota, gaya kasual...' },
     { name: 'Selfie Bareng', prompt: 'Sebuah foto selfie close-up yang fotorealistik. Di dalam foto, orang dari gambar pertama dan orang dari gambar kedua berpose bersama seolah-olah sedang mengambil selfie. Latar belakangnya adalah {prompt}. Fitur wajah kedua individu terjaga sempurna dan 100% identik dengan gambar sumber.', singleUploader: false, placeholder: 'mis: di puncak gunung, di sebuah kafe...' },
+    { name: 'Selfie at the Resort swimming pool', prompt: 'A selfie in front of a mirror by a tropical resort pool, very realistic: a shirtless man, posing confidently by an infinity pool, with a woman in a bikini leaning against him with her face turned to the side, wavy hair flowing, palm trees and blue water reflections, detailed ripples and sun-kissed skin. Be sure to copy face in the photo and make it realistic. {prompt}', singleUploader: false, placeholder: 'Tambahkan detail kecil jika diinginkan...' },
+    { name: 'Selfie mirror in room', prompt: 'A realistic aesthetic photo of someone relaxing or lying down, taking a mirror selfie with a smartphone. The composition is modern and stylish, with natural indoor lighting. The background features a simple bedroom interior with a mirror and a small table. The subject is wearing casual or trendy clothing. Add a subtle pink heart filter effect floating above their head, like a social media filter. Photorealistic, sharp focus, high quality. Be sure to copy the face in the photo and make it realistic. {prompt}', singleUploader: true, placeholder: 'Tambahkan detail kecil jika diinginkan...' },
+    { name: 'Selfie in MacBook', prompt: 'A cinematic close-up of a MacBook Pro 2025 screen, displaying the Photo Booth app in full-screen mode. The screen features a person with a striking resemblance to a provided reference image, holding an iPhone 14, taking a mirror selfie. The background within the Photo Booth app is a warm, modern bedroom wall. The Photo Booth interface prominently displays the live video feed in the center, with a neat row of thumbnail previews of captured photos arrayed along the bottom. Partially visible behind the Photo Booth window is the Spotify app interface, showcasing a music playlist. A portion of the MacBook\'s keyboard is visible at the bottom of the frame. The image is sharply focused, with attention to detail on the screen\'s display, the MacBook\'s texture, and the reflected image, creating a modern and aesthetic feel. {prompt}', singleUploader: true, placeholder: 'Tambahkan detail kecil jika diinginkan...' },
+    { name: 'Foto di Mekkah', prompt: 'A cinematic hyperrealistic photo of one or more people standing in front of the Kaaba at Masjid al-Haram, Mecca, during pilgrimage. Behind the Kaaba, the iconic Abraj Al-Bait Clock Tower rises into the sky with golden details and a crescent moon on top. The courtyard is filled with worshippers in white and black garments walking around the holy site. Each person in the foreground (use the uploaded photo face(s) with 100% resemblance) is shown in proper pilgrimage attire: for men, wrapped in white ihram cloth; for women, wearing a modest white hijab and abaya. All uploaded faces must appear together if multiple people are provided. They look calm and respectful, hands clasped in front or naturally at their sides. The lighting is warm, with a dramatic sky at sunset, creating a spiritual, majestic, and serene atmosphere. Ultra sharp, detailed, and realistic, with a cinematic composition. {prompt}', singleUploader: true, placeholder: 'Tambahkan detail kecil jika diinginkan...' },
+    { name: 'Cinematic Light Red', prompt: 'A high-resolution, cinematic, and photorealistic close-up profile portrait of a person. The image features dramatic split-lighting with a vibrant, glowing red light illuminating the top of the face and a contrasting cool neon blue light casting a soft glow on the jawline and neck. They have a contemplative expression, looking upwards and away from the camera. The focus is sharp on the eye and eyelashes, with a dark, minimalist background. The style is moody, ethereal, and high-fashion, with strong, defined shadows. The generated face must exactly match the uploaded reference photo(s) with 100% resemblance and realistic detail, preserving facial structure, proportions, and expression, whether male or female. {prompt}', singleUploader: true, placeholder: 'Tambahkan detail kecil jika diinginkan...' },
 ];
 
 const loadingMessages = [
@@ -597,6 +610,10 @@ const App = () => {
     mainUploaderLabel = 'Orang 1';
     styleUploaderLabel = 'Orang 2';
     blendHelperText = 'Unggah foto dua orang untuk membuat foto pre-wedding yang romantis.';
+  } else if (activeStyle === 'Selfie at the Resort swimming pool') {
+    mainUploaderLabel = 'Pria';
+    styleUploaderLabel = 'Wanita';
+    blendHelperText = 'Unggah foto pria dan wanita untuk membuat selfie di kolam renang.';
   }
 
 
@@ -739,96 +756,94 @@ const App = () => {
                                 <input 
                                     type="checkbox" 
                                     id="lock-aspect-ratio" 
-                                    checked={isAspectRatioLocked}
-                                    onChange={(e) => setIsAspectRatioLocked(e.target.checked)}
+                                    checked={isAspectRatioLocked} 
+                                    onChange={(e) => setIsAspectRatioLocked(e.target.checked)} 
                                 />
-                                <label htmlFor="lock-aspect-ratio">Kunci Rasio Aspek</label>
+                                <label htmlFor="lock-aspect-ratio">Kunci Rasio Aspek dari Gambar</label>
                             </div>
                             <div className="checkbox-container">
                                 <input 
                                     type="checkbox" 
                                     id="lock-face" 
-                                    checked={isFaceLocked}
-                                    onChange={(e) => setIsFaceLocked(e.target.checked)}
+                                    checked={isFaceLocked} 
+                                    onChange={(e) => setIsFaceLocked(e.target.checked)} 
                                 />
-                                <label htmlFor="lock-face">Lock Face (100%)</label>
+                                <label htmlFor="lock-face">Kunci Wajah (Jangan Ubah Wajah)</label>
                             </div>
                             <div className="checkbox-container">
                                 <input 
                                     type="checkbox" 
                                     id="remove-watermark" 
-                                    checked={removeWatermark}
-                                    onChange={(e) => setRemoveWatermark(e.target.checked)}
+                                    checked={removeWatermark} 
+                                    onChange={(e) => setRemoveWatermark(e.target.checked)} 
                                 />
-                                <label htmlFor="remove-watermark">Hapus Watermark</label>
+                                <label htmlFor="remove-watermark">Hapus Watermark (Khusus Admin)</label>
                             </div>
                         </div>
-                     </div>
+                    </div>
                 </div>
-
                 <button
                     className="transform-button"
                     onClick={generateImage}
-                    disabled={isLoading}
-                >
-                    {isLoading ? 'Mengubah...' : 'Ubah'}
+                    disabled={isLoading || (currentStyle.requiresPrompt && !additionalPrompt.trim() && !prompt.trim().replace(currentStyle.prompt.replace('{prompt}', '').trim(), ''))}
+                    >
+                    {isLoading ? 'Membuat...' : 'Transformasi'}
                 </button>
-
                 {error && <p className="error-message">{error}</p>}
                 </aside>
                 
-                <div className="image-panel">
-                <div className="panel" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-                    <h3>Gambar yang Dihasilkan</h3>
-                    <div className="image-placeholder">
-                    {isLoading && (
-                        <div className="loading-overlay">
-                            <div className="spinner"></div>
-                            <p className="loading-message">{loadingMessage}</p>
-                        </div>
-                    )}
-                    {generatedImage ? (
-                        <>
-                            <img src={generatedImage} alt="Dihasilkan" />
-                            <div className="image-toolbar">
-                                <button className="toolbar-button" onClick={() => handleDownload(generatedImage, 'generated')} aria-label="Unduh gambar yang dihasilkan">
-                                    <DownloadIcon />
-                                </button>
-                                <div className="toolbar-divider"></div>
-                                <button className="toolbar-button" onClick={handleUseAsInput} aria-label="Gunakan sebagai input">
-                                    <UseAsInputIcon />
-                                </button>
-                                <div className="toolbar-divider"></div>
-                                 <button className="toolbar-button" onClick={copyPromptToClipboard} aria-label="Salin prompt">
-                                    <CopyIcon />
-                                </button>
+                <section className="image-panel panel">
+                     <div className="image-display">
+                        <h3>Hasil</h3>
+                        <div className="image-placeholder">
+                        {isLoading ? (
+                            <div className="loading-overlay">
+                                <div className="spinner"></div>
+                                <p className="loading-message">{loadingMessage}</p>
                             </div>
-                        </>
-                    ) : (
-                        <div className="upload-prompt">
-                            <p>Gambar yang Anda hasilkan akan muncul di sini.</p>
+                        ) : generatedImage ? (
+                            <>
+                                <img src={generatedImage} alt="Gambar yang dihasilkan" id="generated-image"/>
+                                <div className="image-toolbar">
+                                    <button className="toolbar-button" onClick={() => handleDownload(generatedImage, 'generated')} aria-label="Unduh gambar yang dihasilkan"><DownloadIcon /></button>
+                                    <div className="toolbar-divider"></div>
+                                    <button className="toolbar-button" onClick={handleUseAsInput} aria-label="Gunakan sebagai input"><UseAsInputIcon /></button>
+                                    <div className="toolbar-divider"></div>
+                                    <button className="toolbar-button" onClick={copyPromptToClipboard} aria-label="Salin prompt"><CopyIcon /></button>
+                                </div>
+                             </>
+                        ) : (
+                            <div className="upload-prompt">
+                                <p>Hasil Anda akan muncul di sini</p>
+                            </div>
+                        )}
                         </div>
-                    )}
                     </div>
-                </div>
-                {mainImagePreview && (
-                    <div className="panel" style={{ marginTop: '20px' }}>
+
+                    <div className="image-display">
                         <h3>Gambar Asli</h3>
                         <div className="image-placeholder">
-                            <img src={mainImagePreview} alt="Asli" />
-                             <div className="image-toolbar-single">
-                                <button className="toolbar-button" onClick={() => handleDownload(mainImagePreview, 'original')} aria-label="Unduh gambar asli">
-                                    <DownloadIcon />
-                                </button>
+                        {mainImagePreview ? (
+                            <>
+                                <img src={mainImagePreview} alt="Gambar asli" id="original-image"/>
+                                <div className="image-toolbar-single">
+                                    <button className="toolbar-button" onClick={() => handleDownload(mainImagePreview, 'original')} aria-label="Unduh gambar asli"><DownloadIcon /></button>
+                                </div>
+                            </>
+                        ) : (
+                            <div className="upload-prompt">
+                                <p>Pratinjau gambar asli Anda akan muncul di sini</p>
                             </div>
+                        )}
                         </div>
                     </div>
-                )}
-                </div>
+
+                </section>
+
             </div>
         </main>
         <footer className="footer">
-            <p>Didukung oleh Gemini AI. Dibuat oleh IT PALUGADA.</p>
+            <p>&copy; 2024 IT PALUGADA. Didukung oleh Gemini AI.</p>
         </footer>
     </>
   );

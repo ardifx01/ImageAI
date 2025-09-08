@@ -6,7 +6,6 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 // --- Logika Pool Kunci API yang Ditingkatkan ---
 
-// Inisialisasi pool kunci di luar handler agar state-nya tetap ada di antara pemanggilan (untuk fungsi 'hangat')
 const apiKeys = (process.env.API_KEYS_POOL || process.env.API_KEY || '')
   .split(',')
   .map(k => k.trim())
@@ -14,16 +13,9 @@ const apiKeys = (process.env.API_KEYS_POOL || process.env.API_KEY || '')
 
 let currentKeyIndex = 0;
 
-/**
- * Mendapatkan kunci API berikutnya dari pool menggunakan strategi round-robin.
- * @returns {string|null} Kunci API atau null jika tidak ada yang dikonfigurasi.
- */
 function getNextApiKey() {
-  if (apiKeys.length === 0) {
-    return null;
-  }
+  if (apiKeys.length === 0) return null;
   const key = apiKeys[currentKeyIndex];
-  // Pindahkan indeks ke kunci berikutnya untuk pemanggilan selanjutnya
   currentKeyIndex = (currentKeyIndex + 1) % apiKeys.length;
   return key;
 }
@@ -36,6 +28,7 @@ export default async function handler(req, res) {
   }
   
   if (apiKeys.length === 0) {
+    console.error("[Describe] Tidak ada kunci API yang dikonfigurasi di server.");
     return res.status(500).json({ error: 'API key not configured on the server. Please set API_KEY or API_KEYS_POOL environment variables.' });
   }
 
@@ -45,11 +38,12 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Missing required field: imagePart' });
   }
 
-  // Loop coba ulang: coba setiap kunci sekali
   const totalKeys = apiKeys.length;
   for (let i = 0; i < totalKeys; i++) {
     const apiKey = getNextApiKey();
     if (!apiKey) continue;
+
+    console.log(`[Describe] Mencoba permintaan dengan kunci API yang berakhiran ...${apiKey.slice(-4)} (Percobaan ${i + 1}/${totalKeys})`);
 
     try {
       const describePrompt = "Act as a professional photographer. Describe this image in vivid detail, focusing on the main subject, setting, lighting, composition, colors, and overall mood. The description should be suitable to be used as a prompt to recreate a similar image with an AI image generator.";
@@ -62,28 +56,25 @@ export default async function handler(req, res) {
 
       const description = response.text;
       if (description) {
-        // Berhasil! Kirim respons dan hentikan loop.
+        console.log(`[Describe] Berhasil dengan kunci ...${apiKey.slice(-4)}`);
         return res.status(200).json({ description });
       } else {
-        // Ini adalah galat non-coba-ulang, jadi langsung hentikan.
+        console.error(`[Describe] Gagal mendapatkan deskripsi dengan kunci ...${apiKey.slice(-4)}. Respons kosong.`);
         return res.status(500).json({ error: "AI couldn't generate a description for this image." });
       }
 
     } catch (error) {
-      console.error(`Error with API key ending in ...${apiKey.slice(-4)}: ${error.message}`);
-      
-      // Periksa apakah ini galat batas penggunaan
-      const isRateLimitError = error.message && error.message.includes('429');
+      const isRateLimitError = error.message && (error.message.includes('429') || error.message.toLowerCase().includes('resource has been exhausted'));
 
       if (isRateLimitError) {
-        // Jika ini adalah kunci terakhir yang dicoba dan masih gagal, kirim galat batas penggunaan ke klien.
+        console.warn(`[Describe] Kunci ...${apiKey.slice(-4)} terkena batas penggunaan.`);
         if (i === totalKeys - 1) {
-          console.error("All API keys are rate-limited.");
+          console.error("[Describe] SEMUA KUNCI habis. Mengirim galat 429 ke klien.");
           return res.status(429).json({ error: 'All API keys are currently rate-limited. Please wait a moment.' });
         }
-        // Jika tidak, loop akan berlanjut untuk mencoba kunci berikutnya.
+        // Lanjutkan ke iterasi berikutnya
       } else {
-        // Untuk galat lain, langsung gagal.
+        console.error(`[Describe] Galat tak terduga dengan kunci ...${apiKey.slice(-4)}:`, error);
         return res.status(500).json({ error: `Failed to generate description: ${error.message}` });
       }
     }

@@ -1,6 +1,14 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
-import type { Part } from "@google/genai";
+import { GoogleGenAI, Modality, type Part } from "@google/genai";
+
+// --- Logika Pool Kunci API ---
+// Kunci API sekarang dikelola dan digunakan langsung di sisi klien.
+const apiKeys = (process.env.API_KEYS_POOL || process.env.API_KEY || '')
+  .split(',')
+  .map(k => k.trim())
+  .filter(Boolean);
+
 
 // --- Fungsi Bantuan ---
 
@@ -313,10 +321,20 @@ const App = () => {
   const [removeWatermark, setRemoveWatermark] = useState<boolean>(false);
   const [rateLimitCooldown, setRateLimitCooldown] = useState<number>(0);
   
-  // Ref untuk input file
+  // Ref untuk input file dan indeks kunci API
   const mainImageInputRef = useRef<HTMLInputElement>(null);
   const styleImageInputRef = useRef<HTMLInputElement>(null);
   const downloadCounter = useRef(1);
+  const apiKeyIndexRef = useRef(0);
+
+  // Fungsi bantuan untuk mendapatkan kunci API berikutnya dalam rotasi
+  const getNextApiKey = useCallback(() => {
+    if (apiKeys.length === 0) return null;
+    const key = apiKeys[apiKeyIndexRef.current];
+    apiKeyIndexRef.current = (apiKeyIndexRef.current + 1) % apiKeys.length;
+    return key;
+  }, []);
+
 
   // Efek untuk menangani pesan pemuatan dinamis
   useEffect(() => {
@@ -406,142 +424,185 @@ const App = () => {
     setAdditionalPrompt(''); // Reset prompt tambahan
   };
 
-  const handleDescribe = async () => {
-    if (!mainImage) {
-        setError("Silakan unggah gambar terlebih dahulu untuk dideskripsikan.");
-        return;
-    }
-    setIsDescribeLoading(true);
-    setError('');
-    try {
-        const imagePart = await fileToGenerativePart(mainImage);
-        
-        const apiResponse = await fetch('/api/describe', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ imagePart }),
-        });
-
-        if (!apiResponse.ok) {
-            const errorData = await apiResponse.json().catch(() => ({ error: 'An unknown server error occurred.' }));
-            if (apiResponse.status === 429) {
-                setError('');
-                setRateLimitCooldown(60);
-            } else {
-                throw new Error(errorData.error || `Request failed with status ${apiResponse.status}`);
-            }
+    const handleDescribe = async () => {
+        if (!mainImage) {
+            setError("Silakan unggah gambar terlebih dahulu untuk dideskripsikan.");
+            return;
+        }
+        if (apiKeys.length === 0) {
+            setError('API key tidak dikonfigurasi di environment variables.');
             return;
         }
 
-        const data = await apiResponse.json();
-        const description = data.description;
+        setIsDescribeLoading(true);
+        setError('');
 
-        if (description) {
-          setPrompt(description);
-          setAdditionalPrompt('');
-        } else {
-          setError("AI tidak dapat menghasilkan deskripsi untuk gambar ini.");
-        }
-    } catch (e: any) {
-        console.error('Error in handleDescribe:', e);
-        setError(`Deskripsi gagal: ${e.message}`);
-    } finally {
-        setIsDescribeLoading(false);
-    }
-  };
-  
-  const generateImage = async () => {
-    const currentStyle = styles.find(s => s.name === activeStyle) || styles[0];
-    const isSingleUploader = currentStyle.singleUploader;
+        try {
+            const imagePart = await fileToGenerativePart(mainImage);
+            const describePrompt = "Act as a professional photographer. Describe this image in vivid detail, focusing on the main subject, setting, lighting, composition, colors, and overall mood. The description should be suitable to be used as a prompt to recreate a similar image with an AI image generator.";
 
-    // Validasi
-    if (isSingleUploader && !mainImage) {
-        setError('Silakan unggah gambar utama.');
-        return;
-    }
-    if (!isSingleUploader && (!mainImage || !styleImage)) {
-        setError('Silakan unggah gambar utama dan gambar kedua untuk mode ini.');
-        return;
-    }
+            const totalKeys = apiKeys.length;
+            for (let i = 0; i < totalKeys; i++) {
+                const apiKey = getNextApiKey();
+                if (!apiKey) continue;
 
-    setIsLoading(true);
-    setGeneratedImage(null);
-    setError('');
-
-    try {
-        // Gabungkan prompt utama dengan prompt tambahan
-        let finalPrompt = prompt;
-        if (additionalPrompt.trim() !== '') {
-            finalPrompt = `${finalPrompt.trim()}. ${additionalPrompt.trim()}`;
-        }
-        
-        // Ganti placeholder rasio aspek
-        finalPrompt = finalPrompt.replace('{aspectRatio}', aspectRatio);
-
-        // Tambahkan instruksi penguncian wajah jika diaktifkan
-        if (isFaceLocked) {
-            const lockFaceInstruction = "Critically important: Do not change the person's face or identity at all. The final result must be 100% identical to the original person's face.";
-            finalPrompt = `${lockFaceInstruction} ${finalPrompt}`;
-        }
-        
-        // Tambahkan instruksi rasio aspek ke prompt hanya jika belum ditambahkan oleh gaya
-        if (!currentStyle.prompt.includes('{aspectRatio}')) {
-             const aspectRatioInstruction = `The output image must have a ${aspectRatio} aspect ratio.`;
-             finalPrompt = `${finalPrompt.trim()} ${aspectRatioInstruction}`;
-        }
-
-
-        // Siapkan bagian gambar
-        const imageParts: Part[] = [];
-        if (mainImage) imageParts.push(await fileToGenerativePart(mainImage));
-        if (!isSingleUploader && styleImage) imageParts.push(await fileToGenerativePart(styleImage));
-
-        // Panggilan API ke backend Vercel
-        const apiResponse = await fetch('/api/generate', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ prompt: finalPrompt, imageParts }),
-        });
-
-        if (!apiResponse.ok) {
-            const errorData = await apiResponse.json().catch(() => ({ error: 'An unknown server error occurred.' }));
-            if (apiResponse.status === 429) {
-                setError('');
-                setRateLimitCooldown(60);
-            } else {
-                throw new Error(errorData.error || `Request failed with status ${apiResponse.status}`);
-            }
-            return;
-        }
-        
-        const imageData = await apiResponse.json();
-
-        if (imageData && imageData.base64) {
-            const rawImageUrl = `data:${imageData.mimeType};base64,${imageData.base64}`;
-            if (removeWatermark) {
-                setGeneratedImage(rawImageUrl);
-            } else {
                 try {
-                    const watermarkedImageUrl = await addWatermark(rawImageUrl);
-                    setGeneratedImage(watermarkedImageUrl);
-                } catch (watermarkError: any) {
-                    console.error("Gagal menambahkan watermark, menampilkan gambar asli:", watermarkError);
-                    setError(`Gambar berhasil dibuat tetapi watermark gagal ditambahkan: ${watermarkError.message}`);
-                    setGeneratedImage(rawImageUrl); // Fallback ke gambar asli
+                    const ai = new GoogleGenAI({ apiKey });
+                    const response = await ai.models.generateContent({
+                        model: 'gemini-2.5-flash',
+                        contents: { parts: [imagePart, { text: describePrompt }] },
+                    });
+
+                    const description = response.text;
+                    if (description) {
+                        setPrompt(description);
+                        setAdditionalPrompt('');
+                        return; // Berhasil, keluar dari fungsi
+                    } else {
+                        throw new Error("Respons kosong dari API.");
+                    }
+                } catch (error) {
+                    console.warn(`[Describe] Kunci API ...${apiKey.slice(-4)} gagal. Mencoba kunci berikutnya.`, error);
+                    const errorMessage = (error as Error).message?.toLowerCase() || '';
+                    const isRateLimitError = errorMessage.includes('429') || errorMessage.includes('resource has been exhausted');
+                    const isInvalidApiKeyError = errorMessage.includes('api key not valid') || errorMessage.includes('permission denied');
+
+                    // Jika ini adalah kunci terakhir dan galatnya adalah rate limit, aktifkan cooldown
+                    if (i === totalKeys - 1 && (isRateLimitError || isInvalidApiKeyError)) {
+                        setError('');
+                        setRateLimitCooldown(60);
+                        return;
+                    }
+                    // Jika galatnya bukan yang bisa dicoba ulang, lempar ke catch utama
+                    if (!isRateLimitError && !isInvalidApiKeyError) {
+                        throw error;
+                    }
+                    // Jika tidak, lanjutkan loop untuk mencoba kunci berikutnya
                 }
             }
-        } else {
-            throw new Error("Respons API tidak valid atau tidak berisi gambar.");
+            // Jika loop selesai tanpa keberhasilan
+            setError("Semua kunci API gagal. Silakan coba lagi nanti.");
+        } catch (e: any) {
+            console.error('Error in handleDescribe:', e);
+            setError(`Deskripsi gagal: ${e.message}`);
+        } finally {
+            setIsDescribeLoading(false);
+        }
+    };
+  
+    const generateImage = async () => {
+        const currentStyle = styles.find(s => s.name === activeStyle) || styles[0];
+        const isSingleUploader = currentStyle.singleUploader;
+
+        // Validasi
+        if (isSingleUploader && !mainImage) {
+            setError('Silakan unggah gambar utama.');
+            return;
+        }
+        if (!isSingleUploader && (!mainImage || !styleImage)) {
+            setError('Silakan unggah gambar utama dan gambar kedua untuk mode ini.');
+            return;
+        }
+        if (apiKeys.length === 0) {
+            setError('API key tidak dikonfigurasi di environment variables.');
+            return;
         }
 
-    } catch (e: any) {
-        console.error('Error in generateImage:', e);
-        setError(`Pembuatan gagal: ${e.message}`);
+        setIsLoading(true);
         setGeneratedImage(null);
-    } finally {
-        setIsLoading(false);
-    }
-  };
+        setError('');
+
+        try {
+            // Gabungkan prompt utama dengan prompt tambahan
+            let finalPrompt = prompt;
+            if (additionalPrompt.trim() !== '') {
+                finalPrompt = `${finalPrompt.trim()}. ${additionalPrompt.trim()}`;
+            }
+            finalPrompt = finalPrompt.replace('{aspectRatio}', aspectRatio);
+
+            if (isFaceLocked) {
+                const lockFaceInstruction = "Critically important: Do not change the person's face or identity at all. The final result must be 100% identical to the original person's face.";
+                finalPrompt = `${lockFaceInstruction} ${finalPrompt}`;
+            }
+            
+            if (!currentStyle.prompt.includes('{aspectRatio}')) {
+                const aspectRatioInstruction = `The output image must have a ${aspectRatio} aspect ratio.`;
+                finalPrompt = `${finalPrompt.trim()} ${aspectRatioInstruction}`;
+            }
+
+            const imageParts: Part[] = [];
+            if (mainImage) imageParts.push(await fileToGenerativePart(mainImage));
+            if (!isSingleUploader && styleImage) imageParts.push(await fileToGenerativePart(styleImage));
+
+            const totalKeys = apiKeys.length;
+            for (let i = 0; i < totalKeys; i++) {
+                const apiKey = getNextApiKey();
+                if (!apiKey) continue;
+
+                try {
+                    const ai = new GoogleGenAI({ apiKey });
+                    const response = await ai.models.generateContent({
+                        model: 'gemini-2.5-flash-image-preview',
+                        contents: { parts: [...imageParts, { text: finalPrompt }] },
+                        config: { responseModalities: [Modality.IMAGE, Modality.TEXT] },
+                    });
+
+                    const candidate = response.candidates?.[0];
+                    if (!candidate) {
+                        throw new Error("Respons tidak valid dari API. Kemungkinan permintaan diblokir.");
+                    }
+                    if (candidate.finishReason === 'SAFETY') {
+                        throw new Error("Pembuatan gambar gagal karena kebijakan keamanan. Silakan sesuaikan input Anda.");
+                    }
+
+                    let imageData = null;
+                    for (const part of candidate.content?.parts || []) {
+                        if (part.inlineData?.data) {
+                            imageData = {
+                                base64: part.inlineData.data,
+                                mimeType: part.inlineData.mimeType,
+                            };
+                            break;
+                        }
+                    }
+
+                    if (imageData) {
+                        const rawImageUrl = `data:${imageData.mimeType};base64,${imageData.base64}`;
+                        if (removeWatermark) {
+                            setGeneratedImage(rawImageUrl);
+                        } else {
+                            const watermarkedImageUrl = await addWatermark(rawImageUrl);
+                            setGeneratedImage(watermarkedImageUrl);
+                        }
+                        return; // Berhasil! Keluar dari fungsi.
+                    } else {
+                        throw new Error("API tidak mengembalikan gambar. Kemungkinan diblokir karena pengaturan keamanan atau masalah prompt.");
+                    }
+                } catch (error) {
+                    console.warn(`[Generate] Kunci API ...${apiKey.slice(-4)} gagal. Mencoba kunci berikutnya.`, error);
+                    const errorMessage = (error as Error).message?.toLowerCase() || '';
+                    const isRateLimitError = errorMessage.includes('429') || errorMessage.includes('resource has been exhausted');
+                    const isInvalidApiKeyError = errorMessage.includes('api key not valid') || errorMessage.includes('permission denied');
+                    
+                    if (i === totalKeys - 1 && (isRateLimitError || isInvalidApiKeyError)) {
+                        setError('');
+                        setRateLimitCooldown(60);
+                        return;
+                    }
+                    if (!isRateLimitError && !isInvalidApiKeyError) {
+                        throw error;
+                    }
+                }
+            }
+            setError("Semua kunci API yang tersedia sedang sibuk atau tidak valid. Silakan tunggu sebentar.");
+        } catch (e: any) {
+            console.error('Error in generateImage:', e);
+            setError(`Pembuatan gagal: ${e.message}`);
+            setGeneratedImage(null);
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
   const handleDownload = (imageUrl: string | null, type: 'original' | 'generated') => {
       if (!imageUrl) return;

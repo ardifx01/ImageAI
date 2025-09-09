@@ -53,13 +53,12 @@ export default async function handler(req, res) {
 
       const ai = new GoogleGenAI({ apiKey });
       const userContent = {
-        role: "user",
         parts: [...imageParts, { text: prompt }],
       };
 
       const response = await ai.models.generateContent({
         model: modelName,
-        contents: [userContent],
+        contents: userContent,
         config: modelConfig,
       });
 
@@ -97,6 +96,7 @@ export default async function handler(req, res) {
           ? `API returned text instead of an image: "${responseText.trim()}"`
           : "API did not return an image. It might have been blocked due to safety settings or a prompt issue.";
         console.error(`[Generate] Gagal mendapatkan gambar dengan kunci ...${apiKey.slice(-4)}. Pesan: ${errorMessage}`);
+        // Return a 500 status for this case, as it's an unexpected API response
         return res.status(500).json({ error: errorMessage });
       }
 

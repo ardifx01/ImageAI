@@ -1,12 +1,6 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
-import { GoogleGenAI, Modality } from "@google/genai";
 import type { Part } from "@google/genai";
-
-// Inisialisasi klien AI Gemini di sisi klien
-// Ini mengasumsikan API_KEY tersedia di lingkungan eksekusi frontend
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-
 
 // --- Fungsi Bantuan ---
 
@@ -421,29 +415,36 @@ const App = () => {
     setError('');
     try {
         const imagePart = await fileToGenerativePart(mainImage);
-        const describePrompt = "Act as a professional photographer. Describe this image in vivid detail, focusing on the main subject, setting, lighting, composition, colors, and overall mood. The description should be suitable to be used as a prompt to recreate a similar image with an AI image generator.";
         
-        const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
-            contents: { parts: [imagePart, { text: describePrompt }] },
+        const apiResponse = await fetch('/api/describe', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ imagePart }),
         });
 
-        const description = response.text;
+        if (!apiResponse.ok) {
+            const errorData = await apiResponse.json().catch(() => ({ error: 'An unknown server error occurred.' }));
+            if (apiResponse.status === 429) {
+                setError('');
+                setRateLimitCooldown(60);
+            } else {
+                throw new Error(errorData.error || `Request failed with status ${apiResponse.status}`);
+            }
+            return;
+        }
+
+        const data = await apiResponse.json();
+        const description = data.description;
+
         if (description) {
           setPrompt(description);
-          setAdditionalPrompt(''); // Reset prompt tambahan
+          setAdditionalPrompt('');
         } else {
           setError("AI tidak dapat menghasilkan deskripsi untuk gambar ini.");
         }
-
     } catch (e: any) {
         console.error('Error in handleDescribe:', e);
-        if (e.message && (e.message.includes('429') || e.message.toUpperCase().includes('RESOURCE_EXHAUSTED') || e.message.toLowerCase().includes('rate limit'))) {
-            setError('');
-            setRateLimitCooldown(60);
-        } else {
-            setError(`Deskripsi gagal: ${e.message}`);
-        }
+        setError(`Deskripsi gagal: ${e.message}`);
     } finally {
         setIsDescribeLoading(false);
     }
@@ -495,50 +496,25 @@ const App = () => {
         if (mainImage) imageParts.push(await fileToGenerativePart(mainImage));
         if (!isSingleUploader && styleImage) imageParts.push(await fileToGenerativePart(styleImage));
 
-        // Panggilan API langsung ke Gemini dari sisi klien
-        const userContent = {
-            parts: [...imageParts, { text: finalPrompt }],
-        };
-
-        const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash-image-preview',
-            contents: userContent,
-            config: {
-                responseModalities: [Modality.IMAGE, Modality.TEXT],
-            },
+        // Panggilan API ke backend Vercel
+        const apiResponse = await fetch('/api/generate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ prompt: finalPrompt, imageParts }),
         });
-        
-        const candidate = response.candidates?.[0];
 
-        if (!candidate) {
-            throw new Error("Tidak ada respons dari API. Permintaan mungkin telah diblokir.");
-        }
-
-        if (candidate.finishReason === 'SAFETY') {
-            throw new Error("Pembuatan gambar gagal. Prompt atau gambar mungkin melanggar kebijakan keamanan. Harap sesuaikan masukan Anda dan coba lagi.");
-        }
-
-        let imageData = null;
-        let responseText = '';
-
-        for (const part of candidate.content?.parts || []) {
-            if (part.inlineData && part.inlineData.data) {
-                imageData = {
-                    base64: part.inlineData.data,
-                    mimeType: part.inlineData.mimeType,
-                };
-                break;
-            } else if (part.text) {
-                responseText += part.text;
+        if (!apiResponse.ok) {
+            const errorData = await apiResponse.json().catch(() => ({ error: 'An unknown server error occurred.' }));
+            if (apiResponse.status === 429) {
+                setError('');
+                setRateLimitCooldown(60);
+            } else {
+                throw new Error(errorData.error || `Request failed with status ${apiResponse.status}`);
             }
+            return;
         }
-
-        if (!imageData) {
-            const errorMessage = responseText
-                ? `API mengembalikan teks, bukan gambar: "${responseText.trim()}"`
-                : "API tidak mengembalikan gambar. Mungkin diblokir karena pengaturan keamanan atau masalah prompt.";
-            throw new Error(errorMessage);
-        }
+        
+        const imageData = await apiResponse.json();
 
         if (imageData && imageData.base64) {
             const rawImageUrl = `data:${imageData.mimeType};base64,${imageData.base64}`;
@@ -555,17 +531,12 @@ const App = () => {
                 }
             }
         } else {
-            throw new Error("Respons API tidak valid.");
+            throw new Error("Respons API tidak valid atau tidak berisi gambar.");
         }
 
     } catch (e: any) {
         console.error('Error in generateImage:', e);
-        if (e.message && (e.message.includes('429') || e.message.toUpperCase().includes('RESOURCE_EXHAUSTED') || e.message.toLowerCase().includes('rate limit'))) {
-            setError('');
-            setRateLimitCooldown(60);
-        } else {
-            setError(`Pembuatan gagal: ${e.message}`);
-        }
+        setError(`Pembuatan gagal: ${e.message}`);
         setGeneratedImage(null);
     } finally {
         setIsLoading(false);

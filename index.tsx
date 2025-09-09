@@ -1,6 +1,12 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
-import type { Part } from "@google/genai"; // Hanya menggunakan tipe, bukan seluruh library
+import { GoogleGenAI, Modality } from "@google/genai";
+import type { Part } from "@google/genai";
+
+// Inisialisasi klien AI Gemini di sisi klien
+// Ini mengasumsikan API_KEY tersedia di lingkungan eksekusi frontend
+const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+
 
 // --- Fungsi Bantuan ---
 
@@ -415,25 +421,16 @@ const App = () => {
     setError('');
     try {
         const imagePart = await fileToGenerativePart(mainImage);
+        const describePrompt = "Act as a professional photographer. Describe this image in vivid detail, focusing on the main subject, setting, lighting, composition, colors, and overall mood. The description should be suitable to be used as a prompt to recreate a similar image with an AI image generator.";
         
-        const response = await fetch('/api/describe', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ imagePart }),
+        const response = await ai.models.generateContent({
+            model: 'gemini-2.5-flash',
+            contents: { parts: [imagePart, { text: describePrompt }] },
         });
 
-        if (!response.ok) {
-            const err = await response.json();
-            const message = err.error || 'Gagal mendeskripsikan gambar.';
-            if (response.status === 429) {
-                throw new Error("429 RESOURCE_EXHAUSTED");
-            }
-            throw new Error(message);
-        }
-
-        const data = await response.json();
-        if (data.description) {
-          setPrompt(data.description);
+        const description = response.text;
+        if (description) {
+          setPrompt(description);
           setAdditionalPrompt(''); // Reset prompt tambahan
         } else {
           setError("AI tidak dapat menghasilkan deskripsi untuk gambar ini.");
@@ -441,7 +438,7 @@ const App = () => {
 
     } catch (e: any) {
         console.error('Error in handleDescribe:', e);
-        if (e.message && (e.message.includes('429') || e.message.toUpperCase().includes('RESOURCE_EXHAUSTED'))) {
+        if (e.message && (e.message.includes('429') || e.message.toUpperCase().includes('RESOURCE_EXHAUSTED') || e.message.toLowerCase().includes('rate limit'))) {
             setError('');
             setRateLimitCooldown(60);
         } else {
@@ -469,9 +466,6 @@ const App = () => {
     setIsLoading(true);
     setGeneratedImage(null);
     setError('');
-
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 60000); // Batas waktu 60 detik
 
     try {
         // Gabungkan prompt utama dengan prompt tambahan
@@ -501,32 +495,50 @@ const App = () => {
         if (mainImage) imageParts.push(await fileToGenerativePart(mainImage));
         if (!isSingleUploader && styleImage) imageParts.push(await fileToGenerativePart(styleImage));
 
-        // Panggilan API ke backend dengan sinyal abort
-        const response = await fetch('/api/generate', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ prompt: finalPrompt, imageParts }),
-          signal: controller.signal,
+        // Panggilan API langsung ke Gemini dari sisi klien
+        const userContent = {
+            parts: [...imageParts, { text: finalPrompt }],
+        };
+
+        const response = await ai.models.generateContent({
+            model: 'gemini-2.5-flash-image-preview',
+            contents: userContent,
+            config: {
+                responseModalities: [Modality.IMAGE, Modality.TEXT],
+            },
         });
+        
+        const candidate = response.candidates?.[0];
 
-        if (!response.ok) {
-            // Coba parsing sebagai JSON, jika gagal, gunakan teks
-            let errorText = response.statusText;
-            try {
-                const err = await response.json();
-                errorText = err.error || `Terjadi kesalahan: ${response.statusText}`;
-            } catch (jsonError) {
-                // Respons bukan JSON, kemungkinan besar dari server proxy/pembatas
-                errorText = `Server mengembalikan respons yang tidak valid (status ${response.status}). Ini bisa terjadi jika file terlalu besar.`;
-            }
-
-            if (response.status === 429) {
-                throw new Error("429 RESOURCE_EXHAUSTED");
-            }
-            throw new Error(errorText);
+        if (!candidate) {
+            throw new Error("Tidak ada respons dari API. Permintaan mungkin telah diblokir.");
         }
 
-        const imageData = await response.json();
+        if (candidate.finishReason === 'SAFETY') {
+            throw new Error("Pembuatan gambar gagal. Prompt atau gambar mungkin melanggar kebijakan keamanan. Harap sesuaikan masukan Anda dan coba lagi.");
+        }
+
+        let imageData = null;
+        let responseText = '';
+
+        for (const part of candidate.content?.parts || []) {
+            if (part.inlineData && part.inlineData.data) {
+                imageData = {
+                    base64: part.inlineData.data,
+                    mimeType: part.inlineData.mimeType,
+                };
+                break;
+            } else if (part.text) {
+                responseText += part.text;
+            }
+        }
+
+        if (!imageData) {
+            const errorMessage = responseText
+                ? `API mengembalikan teks, bukan gambar: "${responseText.trim()}"`
+                : "API tidak mengembalikan gambar. Mungkin diblokir karena pengaturan keamanan atau masalah prompt.";
+            throw new Error(errorMessage);
+        }
 
         if (imageData && imageData.base64) {
             const rawImageUrl = `data:${imageData.mimeType};base64,${imageData.base64}`;
@@ -543,14 +555,12 @@ const App = () => {
                 }
             }
         } else {
-            throw new Error("Respons API tidak valid dari server.");
+            throw new Error("Respons API tidak valid.");
         }
 
     } catch (e: any) {
         console.error('Error in generateImage:', e);
-        if (e.name === 'AbortError') {
-            setError("Pembuatan gagal: Permintaan memakan waktu terlalu lama (timeout). Ini mungkin karena beban server yang tinggi atau batasan platform hosting. Coba lagi nanti.");
-        } else if (e.message && (e.message.includes('429') || e.message.toUpperCase().includes('RESOURCE_EXHAUSTED'))) {
+        if (e.message && (e.message.includes('429') || e.message.toUpperCase().includes('RESOURCE_EXHAUSTED') || e.message.toLowerCase().includes('rate limit'))) {
             setError('');
             setRateLimitCooldown(60);
         } else {
@@ -558,7 +568,6 @@ const App = () => {
         }
         setGeneratedImage(null);
     } finally {
-        clearTimeout(timeoutId);
         setIsLoading(false);
     }
   };

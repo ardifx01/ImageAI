@@ -58,7 +58,7 @@ export default async function handler(req, res) {
 
       const response = await ai.models.generateContent({
         model: modelName,
-        contents: [userContent], // Koreksi struktur, 'contents' harus berupa array
+        contents: userContent, // Struktur diperbaiki: 'contents' harus berupa objek tunggal untuk jenis permintaan ini.
         config: modelConfig,
       });
 

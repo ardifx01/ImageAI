@@ -58,7 +58,7 @@ export default async function handler(req, res) {
 
       const response = await ai.models.generateContent({
         model: modelName,
-        contents: userContent,
+        contents: [userContent], // Koreksi struktur, 'contents' harus berupa array
         config: modelConfig,
       });
 
@@ -96,24 +96,33 @@ export default async function handler(req, res) {
           ? `API returned text instead of an image: "${responseText.trim()}"`
           : "API did not return an image. It might have been blocked due to safety settings or a prompt issue.";
         console.error(`[Generate] Gagal mendapatkan gambar dengan kunci ...${apiKey.slice(-4)}. Pesan: ${errorMessage}`);
-        // Return a 500 status for this case, as it's an unexpected API response
         return res.status(500).json({ error: errorMessage });
       }
 
     } catch (error) {
-      const isRateLimitError = error.message && (error.message.includes('429') || error.message.toLowerCase().includes('resource has been exhausted'));
-      
-      if (isRateLimitError) {
-        console.warn(`[Generate] Kunci ...${apiKey.slice(-4)} terkena batas penggunaan.`);
-        if (i === totalKeys - 1) {
-          console.error("[Generate] SEMUA KUNCI habis. Mengirim galat 429 ke klien.");
-          return res.status(429).json({ error: 'All API keys are currently rate-limited. Please wait a moment.' });
-        }
-        // Lanjutkan ke iterasi berikutnya untuk mencoba kunci lain
+      const errorMessage = error.message?.toLowerCase() || '';
+      const isRateLimitError = errorMessage.includes('429') || errorMessage.includes('resource has been exhausted');
+      const isInvalidApiKeyError = errorMessage.includes('api key not valid') || errorMessage.includes('permission denied');
+      const isGoogleServerError = errorMessage.includes('500') || errorMessage.includes('503') || errorMessage.includes('service unavailable');
+
+      // Coba kunci berikutnya jika galatnya dapat dipulihkan (rate limit, kunci tidak valid, galat server sementara)
+      if (isRateLimitError || isInvalidApiKeyError || isGoogleServerError) {
+          let reason = 'a server error';
+          if (isRateLimitError) reason = 'rate-limited';
+          if (isInvalidApiKeyError) reason = 'invalid or has permission issues';
+
+          console.warn(`[Generate] Kunci ...${apiKey.slice(-4)} gagal karena ${reason}. Mencoba kunci berikutnya...`);
+
+          if (i === totalKeys - 1) { // Jika ini adalah kunci terakhir dalam loop
+              console.error("[Generate] SEMUA KUNCI gagal. Mengirim galat 429 ke klien.");
+              return res.status(429).json({ error: 'All API keys are currently busy or invalid. Please wait a moment.' });
+          }
+          continue; // Lanjutkan ke iterasi berikutnya untuk mencoba kunci lain
       } else {
-        console.error(`[Generate] Galat tak terduga dengan kunci ...${apiKey.slice(-4)}:`, error);
-        const detailedError = error.message || "An unknown error occurred";
-        return res.status(500).json({ error: `Failed to generate content: ${detailedError}` });
+          // Galat yang tidak dapat dicoba ulang (misalnya, input buruk, kebijakan keamanan tidak tertangkap sebelumnya)
+          console.error(`[Generate] Galat tak terduga (tidak dapat dicoba ulang) dengan kunci ...${apiKey.slice(-4)}:`, error);
+          const detailedError = error.message || "An unknown error occurred";
+          return res.status(500).json({ error: `Failed to generate content: ${detailedError}` });
       }
     }
   }

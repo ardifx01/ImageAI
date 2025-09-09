@@ -59,23 +59,33 @@ export default async function handler(req, res) {
         console.log(`[Describe] Berhasil dengan kunci ...${apiKey.slice(-4)}`);
         return res.status(200).json({ description });
       } else {
-        console.error(`[Describe] Gagal mendapatkan deskripsi dengan kunci ...${apiKey.slice(-4)}. Respons kosong.`);
-        return res.status(500).json({ error: "AI couldn't generate a description for this image." });
+        console.warn(`[Describe] Gagal mendapatkan deskripsi dengan kunci ...${apiKey.slice(-4)}. Respons kosong.`);
+        // Jangan langsung gagal, coba kunci berikutnya
+        throw new Error("Empty response from API.");
       }
 
     } catch (error) {
-      const isRateLimitError = error.message && (error.message.includes('429') || error.message.toLowerCase().includes('resource has been exhausted'));
+      const errorMessage = error.message?.toLowerCase() || '';
+      const isRateLimitError = errorMessage.includes('429') || errorMessage.includes('resource has been exhausted');
+      const isInvalidApiKeyError = errorMessage.includes('api key not valid') || errorMessage.includes('permission denied');
+      const isGoogleServerError = errorMessage.includes('500') || errorMessage.includes('503') || errorMessage.includes('service unavailable');
 
-      if (isRateLimitError) {
-        console.warn(`[Describe] Kunci ...${apiKey.slice(-4)} terkena batas penggunaan.`);
-        if (i === totalKeys - 1) {
-          console.error("[Describe] SEMUA KUNCI habis. Mengirim galat 429 ke klien.");
-          return res.status(429).json({ error: 'All API keys are currently rate-limited. Please wait a moment.' });
-        }
-        // Lanjutkan ke iterasi berikutnya
+      if (isRateLimitError || isInvalidApiKeyError || isGoogleServerError) {
+          let reason = 'a server error';
+          if (isRateLimitError) reason = 'rate-limited';
+          if (isInvalidApiKeyError) reason = 'invalid or has permission issues';
+
+          console.warn(`[Describe] Kunci ...${apiKey.slice(-4)} gagal karena ${reason}. Mencoba kunci berikutnya...`);
+
+          if (i === totalKeys - 1) { // Jika ini kunci terakhir
+              console.error("[Describe] SEMUA KUNCI habis. Mengirim galat 429 ke klien.");
+              return res.status(429).json({ error: 'All API keys are currently busy or invalid. Please wait a moment.' });
+          }
+          continue; // Lanjutkan ke iterasi berikutnya
       } else {
-        console.error(`[Describe] Galat tak terduga dengan kunci ...${apiKey.slice(-4)}:`, error);
-        return res.status(500).json({ error: `Failed to generate description: ${error.message}` });
+          // Galat yang tidak dapat dicoba ulang
+          console.error(`[Describe] Galat tak terduga (tidak dapat dicoba ulang) dengan kunci ...${apiKey.slice(-4)}:`, error);
+          return res.status(500).json({ error: `Failed to generate description: ${error.message}` });
       }
     }
   }
